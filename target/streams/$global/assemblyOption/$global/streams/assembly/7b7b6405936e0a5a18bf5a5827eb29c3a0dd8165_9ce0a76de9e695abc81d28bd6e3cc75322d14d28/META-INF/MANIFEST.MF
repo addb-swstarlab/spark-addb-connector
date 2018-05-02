@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Implementation-Vendor: The Apache Software Foundation
+Implementation-Title: Apache Parquet Format (Incubating)
+Implementation-Version: 2.3.0-incubating
+Implementation-Vendor-Id: org.apache.parquet
+Built-By: blue
+Build-Jdk: 1.7.0_72
+Specification-Vendor: The Apache Software Foundation
+Specification-Title: Apache Parquet Format (Incubating)
+Created-By: Apache Maven 3.0.5
+Specification-Version: 2.3.0-incubating
+Archiver-Version: Plexus Archiver
+

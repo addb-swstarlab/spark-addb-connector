@@ -1,0 +1,25 @@
+Manifest-Version: 1.0
+Bnd-LastModified: 1408163547371
+Build-Jdk: 1.7.0_25
+Built-By: tatu
+Bundle-Description: Compression codec for LZF encoding for particularly 
+ encoding/decoding, with reasonable compression.Compressor is basic Lemp
+ el-Ziv codec, without Huffman (deflate/gzip) or statistical post-encodi
+ ng.See "http://oldhome.schmorp.de/marc/liblzf.html" for more on origina
+ l LZF package.
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.html
+Bundle-ManifestVersion: 2
+Bundle-Name: Compress-LZF
+Bundle-SymbolicName: com.ning.compress-lzf
+Bundle-Vendor: http://ning.com
+Bundle-Version: 1.0.3
+Created-By: Apache Maven Bundle Plugin
+DynamicImport-Package: sun.misc
+Export-Package: com.ning.compress;version="1.0.3",com.ning.compress.gzip
+ ;uses:="com.ning.compress";version="1.0.3",com.ning.compress.lzf;uses:=
+ "com.ning.compress,com.ning.compress.lzf.util";version="1.0.3",com.ning
+ .compress.lzf.parallel;uses:="com.ning.compress.lzf,com.ning.compress.l
+ zf.util";version="1.0.3",com.ning.compress.lzf.util;uses:="com.ning.com
+ press.lzf,com.ning.compress";version="1.0.3"
+Main-Class: com.ning.compress.lzf.LZF
+Tool: Bnd-1.50.0

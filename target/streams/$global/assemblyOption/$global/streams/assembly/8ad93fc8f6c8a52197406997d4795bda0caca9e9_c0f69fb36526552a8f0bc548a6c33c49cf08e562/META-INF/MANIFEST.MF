@@ -1,0 +1,24 @@
+Manifest-Version: 1.0
+Ant-Version: Apache Ant 1.8.2
+Created-By: 1.6.0_05-b13 (Sun Microsystems Inc.)
+Main-Class: org.apache.zookeeper.server.quorum.QuorumPeer
+Built-By: hortonma
+Built-At: 11/05/2012 07:58 GMT
+Built-On: hrt8n20.cc1.ygridcore.net
+Implementation-Title: org.apache.zookeeper
+Implementation-Version: 3.4.5-1392090
+Implementation-Vendor: The Apache Software Foundation
+Bundle-Vendor: The Apache Software Foundation
+Bundle-Name: ZooKeeper Bundle
+Bundle-SymbolicName: org.apache.hadoop.zookeeper
+Bundle-ManifestVersion: 2
+Bundle-Version: 3.4.5
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
+Bundle-DocURL: http://hadoop.apache.org/zookeeper
+Import-Package: javax.management,org.apache.log4j,org.osgi.framework;v
+ ersion="[1.4,2.0)",org.osgi.util.tracker;version="[1.1,2.0)"
+Export-Package: org.apache.zookeeper;version="3.4.5",org.apache.zookee
+ per.data;version="3.4.5",org.apache.zookeeper.version;version="3.4.5"
+ ,org.apache.zookeeper.server;version="3.4.5",org.apache.zookeeper.ser
+ ver.quorum;version="3.4.5"
+

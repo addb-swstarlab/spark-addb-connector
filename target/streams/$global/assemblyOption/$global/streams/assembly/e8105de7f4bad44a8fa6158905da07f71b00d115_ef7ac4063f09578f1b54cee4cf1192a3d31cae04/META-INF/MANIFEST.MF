@@ -1,0 +1,44 @@
+Manifest-Version: 1.0
+Bnd-LastModified: 1391641721685
+Build-Jdk: 1.7.0_25
+Built-By: jordanzimmerman
+Bundle-Description: High-level API that greatly simplifies using ZooKeep
+ er.
+Bundle-DocURL: http://www.apache.org/
+Bundle-License: file:///Users/jordanzimmerman/dev/oss/apache/curator/tar
+ get/checkout/curator-framework/LICENSE
+Bundle-ManifestVersion: 2
+Bundle-Name: Curator Framework
+Bundle-SymbolicName: curator-framework
+Bundle-Vendor: The Apache Software Foundation
+Bundle-Version: 2.4.0
+Created-By: Apache Maven Bundle Plugin
+Export-Package: org.apache.curator.framework;uses:="org.apache.curator.f
+ ramework.state,org.apache.curator.framework.api.transaction,org.apache.
+ curator,org.apache.curator.utils,org.apache.curator.framework.listen,or
+ g.apache.curator.framework.imps,org.apache.curator.framework.api,org.ap
+ ache.curator.ensemble.fixed,org.apache.curator.ensemble";version="2.4.0
+ ",org.apache.curator.framework.state;uses:="org.apache.curator.framewor
+ k,com.google.common.base,org.apache.curator.utils,org.apache.curator.fr
+ amework.listen,org.slf4j";version="2.4.0",org.apache.curator.framework.
+ api.transaction;uses:="com.google.common.base,org.apache.zookeeper.data
+ ,org.apache.curator.framework.api";version="2.4.0",org.apache.curator.f
+ ramework.listen;uses:="com.google.common.base,org.slf4j,com.google.comm
+ on.collect,com.google.common.util.concurrent";version="2.4.0",org.apach
+ e.curator.framework.imps;uses:="com.google.common.collect,org.apache.zo
+ okeeper.data,org.apache.curator.framework.api,org.apache.zookeeper,org.
+ apache.curator,org.apache.curator.framework,org.apache.curator.framewor
+ k.api.transaction,org.apache.curator.utils,com.google.common.base,org.s
+ lf4j,org.apache.curator.framework.state,org.apache.curator.framework.li
+ sten,org.apache.curator.ensemble,com.google.common.cache";version="2.4.
+ 0",org.apache.curator.framework.api;uses:="org.apache.curator.utils,org
+ .apache.zookeeper.data,org.apache.curator.framework,org.apache.zookeepe
+ r";version="2.4.0"
+Import-Package: com.google.common.base;version="[14.0,15)",com.google.co
+ mmon.cache;version="[14.0,15)",com.google.common.collect;version="[14.0
+ ,15)",com.google.common.util.concurrent;version="[14.0,15)",org.apache.
+ curator;version="[2.4,3)",org.apache.curator.ensemble;version="[2.4,3)"
+ ,org.apache.curator.ensemble.fixed;version="[2.4,3)",org.apache.curator
+ .utils;version="[2.4,3)",org.apache.zookeeper;version="[3.4,4)",org.apa
+ che.zookeeper.data;version="[3.4,4)",org.slf4j;version="[1.6,2)"
+Tool: Bnd-1.50.0

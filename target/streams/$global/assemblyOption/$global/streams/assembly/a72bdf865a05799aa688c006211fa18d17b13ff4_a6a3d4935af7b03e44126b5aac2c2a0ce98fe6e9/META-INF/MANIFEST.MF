@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Export-Package: javax.inject;version=1
+Implementation-Version: 1
+Built-By: java_re
+Tool: Bnd-2.1.0.20130426-122213
+Bundle-Name: javax.inject:1 as OSGi bundle
+Created-By: Apache Maven Bundle Plugin
+Bundle-Vendor: Oracle Corporation
+Build-Jdk: 1.7.0_75
+Bundle-Version: 2.4.0.b34
+Bnd-LastModified: 1447934099646
+Bundle-ManifestVersion: 2
+Bundle-License: https://glassfish.java.net/nonav/public/CDDL+GPL_1_1.h
+ tml
+Bundle-Description: Injection API (JSR 330) version ${javax.inject.ver
+ sion} repackaged as OSGi bundle
+Bundle-SymbolicName: org.glassfish.hk2.external.javax.inject
+Bundle-DocURL: http://www.oracle.com
+Archiver-Version: Plexus Archiver
+

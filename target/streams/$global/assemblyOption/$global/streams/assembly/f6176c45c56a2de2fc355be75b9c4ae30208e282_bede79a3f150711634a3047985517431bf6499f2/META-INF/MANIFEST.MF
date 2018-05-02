@@ -1,0 +1,51 @@
+Manifest-Version: 1.0
+Export-Package: org.apache.logging.log4j;uses:="org.apache.logging.log
+ 4j.message,org.apache.logging.log4j.spi,org.apache.logging.log4j.util
+ ";version="2.11.0",org.apache.logging.log4j.message;uses:="org.apache
+ .logging.log4j.util";version="2.11.0",org.apache.logging.log4j.simple
+ ;uses:="org.apache.logging.log4j,org.apache.logging.log4j.message,org
+ .apache.logging.log4j.spi,org.apache.logging.log4j.util";version="2.1
+ 1.0",org.apache.logging.log4j.spi;uses:="org.apache.logging.log4j,org
+ .apache.logging.log4j.message,org.apache.logging.log4j.util";version=
+ "2.11.0",org.apache.logging.log4j.status;uses:="org.apache.logging.lo
+ g4j,org.apache.logging.log4j.message,org.apache.logging.log4j.spi";ve
+ rsion="2.11.0",org.apache.logging.log4j.util;uses:="org.apache.loggin
+ g.log4j.message,org.apache.logging.log4j.spi,org.osgi.framework";vers
+ ion="2.11.0"
+Implementation-Title: Apache Log4j API
+Built-By: rgoers
+Tool: Bnd-3.5.0.201709291849
+Log4jReleaseKey: B3D8E1BA
+Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.7))"
+Implementation-Vendor: The Apache Software Foundation
+Implementation-Vendor-Id: org.apache.logging.log4j
+Specification-Title: Apache Log4j API
+Bundle-Activator: org.apache.logging.log4j.util.Activator
+Bundle-License: https://www.apache.org/licenses/LICENSE-2.0.txt
+Bundle-SymbolicName: org.apache.logging.log4j.api
+Log4jReleaseManager: Ralph Goers
+X-Compile-Target-JDK: 1.7
+Implementation-Version: 2.11.0
+Multi-Release: true
+Specification-Vendor: The Apache Software Foundation
+Bundle-Name: Apache Log4j API
+Created-By: Apache Maven Bundle Plugin
+Implementation-URL: https://logging.apache.org/log4j/2.x/log4j-api/
+X-Compile-Source-JDK: 1.7
+Bundle-Vendor: The Apache Software Foundation
+Bundle-Version: 2.11.0
+Build-Jdk: 1.7.0_80
+Bnd-LastModified: 1520808197439
+Bundle-ManifestVersion: 2
+Bundle-Description: The Apache Log4j API
+Import-Package: org.apache.logging.log4j,org.apache.logging.log4j.mess
+ age,org.apache.logging.log4j.simple,org.apache.logging.log4j.spi,org.
+ apache.logging.log4j.status,org.apache.logging.log4j.util,org.osgi.fr
+ amework;version="[1.6,2)",org.osgi.framework.wiring;version="[1.0,2)"
+ ,sun.reflect;resolution:=optional,org.apache.logging.log4j.core.osgi;
+ resolution:=optional,org.apache.logging.log4j.core.util;resolution:=o
+ ptional,org.apache.logging.log4j.core.async;resolution:=optional
+Bundle-DocURL: https://www.apache.org/
+Specification-Version: 2.11.0
+Log4jReleaseVersion: 2.11.0
+

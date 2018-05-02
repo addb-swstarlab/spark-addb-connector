@@ -1,0 +1,91 @@
+Manifest-Version: 1.0
+Export-Package: org.codehaus.commons.compiler, org.codehaus.commons.co
+ mpiler.samples
+Ant-Version: Apache Ant 1.9.2
+Bundle-Version: 2.7.8
+Bundle-Name: Commons-Compiler
+Bundle-ManifestVersion: 2
+Created-By: 1.6.0_41-b02 (Sun Microsystems Inc.)
+Bundle-Description: Janino is a super-small, super-fast Java compiler.
+Bundle-License: http://dist.codehaus.org/janino/new_bsd_license.txt
+Bundle-SymbolicName: org.codehaus.janino.commons-compiler;singleton:=t
+ rue
+Specification-Version: 2.7.8
+
+Name: org/codehaus/commons/compiler/IExpressionEvaluator.class
+SHA1-Digest: eh3idOFvF0JEAJ92rbzx/ARKdKY=
+
+Name: org/codehaus/commons/compiler/AbstractJavaSourceClassLoader.clas
+ s
+SHA1-Digest: 4q5+PtMabw+vTqocAOL/GwHUsto=
+
+Name: org/codehaus/commons/compiler/WarningHandler.class
+SHA1-Digest: euAmDEXloirFCXltL2YG64pVg6A=
+
+Name: org/codehaus/commons/compiler/samples/ShippingCost.class
+SHA1-Digest: xWRzrjfuQB2kV1XLgQ7Y9YdR+PY=
+
+Name: org/codehaus/commons/compiler/PrimitiveWrapper.class
+SHA1-Digest: trN8NgSoTc7VsIqxSJvn8/ybHBM=
+
+Name: org/codehaus/commons/compiler/ISimpleCompiler.class
+SHA1-Digest: NIrERdnyWz99iQm/DSy+lssDb5Q=
+
+Name: org/codehaus/commons/compiler/Cookable.class
+SHA1-Digest: esa8W4cXmBw645jL6tSwvR/wBSE=
+
+Name: org/codehaus/commons/compiler/samples/package-info.class
+SHA1-Digest: tLzG5Fvx/Vp30rhJrAvNpl7POQE=
+
+Name: org/codehaus/commons/compiler/samples/ScriptDemo.class
+SHA1-Digest: GXosVFeLdTcEmBqxNsTDZ563TDk=
+
+Name: org/codehaus/commons/compiler/samples/ExpressionDemo.class
+SHA1-Digest: hii1Xtdp64jxIVSqQlca2LSKVB8=
+
+Name: org/codehaus/commons/compiler/ICompilerFactory.class
+SHA1-Digest: xaBwwc1DTicr7yTzb8+tUFIobaY=
+
+Name: org/codehaus/commons/compiler/IClassBodyEvaluator.class
+SHA1-Digest: XKzEp2Jvglc08IzXR/JaJDiE4yE=
+
+Name: org/codehaus/commons/compiler/samples/DemoBase.class
+SHA1-Digest: 9M2Ll4kvP5Pu21fcL2zNFL9EA/E=
+
+Name: org/codehaus/commons/compiler/ICookable.class
+SHA1-Digest: XRC68PlROV+6jhcqNrFA7KQR5Tk=
+
+Name: org/codehaus/commons/compiler/CompileException.class
+SHA1-Digest: NBFQIO8A1YpnOwJ1Hrnk10Ryoys=
+
+Name: org/codehaus/commons/compiler/LocatedException.class
+SHA1-Digest: mv0MosefjbUCBOdledTvxFrzjJM=
+
+Name: org/codehaus/commons/compiler/ErrorHandler.class
+SHA1-Digest: DMfunB6l59W3aOvRxRDxURlyuhQ=
+
+Name: org/codehaus/commons/compiler/AbstractCompilerFactory.class
+SHA1-Digest: HBtrDnAZ5BVO5rfYIR26q/Vl5hQ=
+
+Name: org/codehaus/commons/compiler/CompilerFactoryFactory.class
+SHA1-Digest: Ijjg5B8O89XatrFhh+k6wJ/AKyQ=
+
+Name: org/codehaus/commons/compiler/AbstractJavaSourceClassLoader$Prot
+ ectionDomainFactory.class
+SHA1-Digest: n12K46X2H0zZtgsY4nrGZ1fYfTs=
+
+Name: org/codehaus/commons/compiler/Location.class
+SHA1-Digest: BOK9k9MRLXiXENl1N3JiGyQqLDw=
+
+Name: org/codehaus/commons/compiler/UncheckedCompileException.class
+SHA1-Digest: TKaY2VkSaWWhzL24fzJKC1i2KUY=
+
+Name: org/codehaus/commons/compiler/samples/ClassBodyDemo.class
+SHA1-Digest: 6IeyVInJqQoK7hZubjD9M89oTGQ=
+
+Name: org/codehaus/commons/compiler/package-info.class
+SHA1-Digest: IxWjPmPqsHlTHI6Cy95QdS3ezV0=
+
+Name: org/codehaus/commons/compiler/IScriptEvaluator.class
+SHA1-Digest: cADNhpevnvqjFGyLJOentwI3jy0=
+

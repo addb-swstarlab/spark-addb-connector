@@ -1,0 +1,39 @@
+// ------------------------------------------------------------------
+// Transitive dependencies of this project determined from the
+// maven pom organized by organization.
+// ------------------------------------------------------------------
+
+Spark Project Unsafe
+
+
+From: 'an unknown organization'
+  - Kryo Shaded (https://github.com/EsotericSoftware/kryo/kryo-shaded) com.esotericsoftware:kryo-shaded:bundle:3.0.3
+    License: New BSD License  (http://www.opensource.org/licenses/bsd-license.php)
+  - MinLog (https://github.com/EsotericSoftware/minlog) com.esotericsoftware:minlog:bundle:1.3.0
+    License: New BSD License  (http://www.opensource.org/licenses/bsd-license.php)
+  - FindBugs-jsr305 (http://findbugs.sourceforge.net/) com.google.code.findbugs:jsr305:jar:1.3.9
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - empty (http://nexus.sonatype.org/oss-repository-hosting.html/unused) org.spark-project.spark:unused:jar:1.0.0
+    License: The Apache License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+From: 'com.twitter'
+  - chill-java (https://github.com/twitter/chill) com.twitter:chill-java:jar:0.8.0
+    License: Apache 2  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - chill (https://github.com/twitter/chill) com.twitter:chill_2.11:jar:0.8.0
+    License: Apache 2  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+From: 'Joe Walnes, Henri Tremblay, Leonardo Mesquita'
+  - Objenesis (http://objenesis.org) org.objenesis:objenesis:jar:2.1
+    License: Apache 2  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+From: 'LAMP/EPFL' (http://lamp.epfl.ch/)
+  - Scala Library (http://www.scala-lang.org/) org.scala-lang:scala-library:jar:2.11.8
+    License: BSD 3-Clause  (http://www.scala-lang.org/license.html)
+
+From: 'The Apache Software Foundation' (http://www.apache.org/)
+  - Spark Project Tags (http://spark.apache.org/) org.apache.spark:spark-tags_2.11:jar:2.0.2
+    License: Apache 2.0 License  (http://www.apache.org/licenses/LICENSE-2.0.html)
+
+
+
+

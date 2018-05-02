@@ -1,0 +1,37 @@
+Manifest-Version: 1.0
+Archiver-Version: Plexus Archiver
+Created-By: 1.6.0_22 (Sun Microsystems Inc.)
+Built-By: gregw
+Build-Jdk: 1.6.0_22
+implementation-version: 6.1.26
+mode: development
+package: org.mortbay
+url: http://www.eclipse.org/jetty/jetty-parent/project/modules/jetty-u
+ til
+Export-Package: org.mortbay.log;uses:="org.mortbay.util,org.slf4j";ver
+ sion="6.1.26",org.mortbay.util.ajax;uses:="org.mortbay.log,javax.serv
+ let,org.mortbay.util,javax.servlet.http";version="6.1.26",org.mortbay
+ .servlet;uses:="org.mortbay.log,javax.servlet,org.mortbay.util.ajax,o
+ rg.mortbay.util,javax.servlet.http";version="6.1.26",org.mortbay.thre
+ ad;uses:="org.mortbay.log,org.mortbay.component";version="6.1.26",org
+ .mortbay.util;uses:="org.mortbay.log,org.mortbay.thread";version="6.1
+ .26",org.mortbay.component;uses:="org.mortbay.log,org.mortbay.util";v
+ ersion="6.1.26"
+Ignore-Package: org.mortbay.log,org.mortbay.util.ajax,org.mortbay.serv
+ let,org.mortbay.thread,org.mortbay.util,org.mortbay.component
+Tool: Bnd-0.0.238
+Bundle-Name: Jetty Utilities
+Bundle-RequiredExecutionEnvironment: J2SE-1.4
+Bundle-Vendor: Mort Bay Consulting
+Bundle-Version: 6.1.26
+Bnd-LastModified: 1289425065286
+Bundle-ManifestVersion: 2
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0, http://www
+ .eclipse.org/org/documents/epl-v10.php
+Bundle-Description: Utility classes for Jetty
+Import-Package: javax.servlet,javax.servlet.http,org.slf4j;resolution:
+ =optional;version="1.3"
+Bundle-SymbolicName: org.mortbay.jetty.util
+Bundle-DocURL: http://jetty.mortbay.org
+Originally-Created-By: 1.6.0_22 (Sun Microsystems Inc.)
+

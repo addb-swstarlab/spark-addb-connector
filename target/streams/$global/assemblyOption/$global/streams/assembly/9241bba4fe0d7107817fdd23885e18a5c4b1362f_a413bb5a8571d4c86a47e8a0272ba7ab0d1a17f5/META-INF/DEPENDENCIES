@@ -1,0 +1,23 @@
+// ------------------------------------------------------------------
+// Transitive dependencies of this project determined from the
+// maven pom organized by organization.
+// ------------------------------------------------------------------
+
+Apache XBean :: ASM 5 shaded (repackaged)
+
+
+From: 'ObjectWeb' (http://www.objectweb.org/)
+  - ASM Core (http://asm.objectweb.org/asm/) org.ow2.asm:asm:jar:5.0.4
+    License: BSD  (http://asm.objectweb.org/license.html)
+  - ASM Commons (http://asm.objectweb.org/asm-commons/) org.ow2.asm:asm-commons:jar:5.0.4
+    License: BSD  (http://asm.objectweb.org/license.html)
+  - ASM Tree (http://asm.objectweb.org/asm-tree/) org.ow2.asm:asm-tree:jar:5.0.4
+    License: BSD  (http://asm.objectweb.org/license.html)
+
+From: 'The Apache Software Foundation' (http://www.apache.org)
+  - Apache XBean :: ASM 5 Util (http://geronimo.apache.org/maven/xbean/4.4/xbean-asm-util) org.apache.xbean:xbean-asm-util:jar:4.4
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+
+
+

@@ -1,0 +1,30 @@
+Manifest-Version: 1.0
+Export-Package: org.jvnet.hk2.external.generator;version="2.4.0";uses:
+ ="org.glassfish.hk2.api,org.glassfish.hk2.extension",org.jvnet.hk2.ex
+ ternal.runtime;version="2.4.0";uses:="org.jvnet.hk2.annotations"
+Built-By: java_re
+Tool: Bnd-2.1.0.20130426-122213
+Bundle-Name: ServiceLocator Default Implementation
+Created-By: Apache Maven Bundle Plugin
+Bundle-Vendor: Oracle Corporation
+Build-Jdk: 1.7.0_75
+Bundle-Version: 2.4.0.b34
+Bnd-LastModified: 1447934174896
+Bundle-ManifestVersion: 2
+Bundle-License: https://glassfish.java.net/nonav/public/CDDL+GPL_1_1.h
+ tml
+Bundle-Description: ServiceLocator Default Implementation
+Bundle-SymbolicName: org.glassfish.hk2.locator
+Bundle-DocURL: http://www.oracle.com
+Import-Package: javassist.util.proxy;version="[3.18,4)",javax.inject;v
+ ersion="[1.0,2)",org.aopalliance.intercept;version="[1.0,2)",org.glas
+ sfish.hk2.api;version="[2.4,3)",org.glassfish.hk2.api.messaging;versi
+ on="[2.4,3)",org.glassfish.hk2.extension;version="[2.4,3)",org.glassf
+ ish.hk2.utilities;version="[2.4,3)",org.glassfish.hk2.utilities.cache
+ ;version="[2.4,3)",org.glassfish.hk2.utilities.general;version="[2.4,
+ 3)",org.glassfish.hk2.utilities.reflection;version="[2.4,3)",org.glas
+ sfish.hk2.utilities.reflection.internal;version="[2.4,3)",org.jvnet.h
+ k2.annotations;version="[2.4,3)",org.jvnet.hk2.external.runtime;versi
+ on="[2.4,3)"
+Archiver-Version: Plexus Archiver
+

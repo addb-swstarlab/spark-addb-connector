@@ -1,0 +1,29 @@
+// ------------------------------------------------------------------
+// Transitive dependencies of this project determined from the
+// maven pom organized by organization.
+// ------------------------------------------------------------------
+
+Spark Project Tags
+
+
+From: 'an unknown organization'
+  - empty (http://nexus.sonatype.org/oss-repository-hosting.html/unused) org.spark-project.spark:unused:jar:1.0.0
+    License: The Apache License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+From: 'LAMP/EPFL' (http://lamp.epfl.ch/)
+  - Scala Library (http://www.scala-lang.org/) org.scala-lang:scala-library:jar:2.11.8
+    License: BSD 3-Clause  (http://www.scala-lang.org/license.html)
+  - Scala Compiler (http://www.scala-lang.org/) org.scala-lang:scala-reflect:jar:2.11.8
+    License: BSD 3-Clause  (http://www.scala-lang.org/license.html)
+
+From: 'org.scala-lang.modules' (http://www.scala-lang.org/)
+  - scala-xml (http://www.scala-lang.org/) org.scala-lang.modules:scala-xml_2.11:bundle:1.0.2
+    License: BSD 3-clause  (http://opensource.org/licenses/BSD-3-Clause)
+
+From: 'org.scalatest'
+  - scalatest (http://www.scalatest.org) org.scalatest:scalatest_2.11:bundle:2.2.6
+    License: the Apache License, ASL Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0)
+
+
+
+

@@ -1,0 +1,51 @@
+Manifest-Version: 1.0
+Export-Package: com.univocity.parsers.annotations;uses:="com.univocity
+ .parsers.conversions";version="2.1.1",com.univocity.parsers.annotatio
+ ns.helpers;uses:="com.univocity.parsers.annotations,com.univocity.par
+ sers.common.beans,com.univocity.parsers.conversions";version="2.1.1",
+ com.univocity.parsers.common;uses:="com.univocity.parsers.common.fiel
+ ds,com.univocity.parsers.common.input,com.univocity.parsers.common.pr
+ ocessor,com.univocity.parsers.common.record,com.univocity.parsers.con
+ versions";version="2.1.1",com.univocity.parsers.common.beans;version=
+ "2.1.1",com.univocity.parsers.common.fields;uses:="com.univocity.pars
+ ers.conversions";version="2.1.1",com.univocity.parsers.common.input;u
+ ses:="com.univocity.parsers.common";version="2.1.1",com.univocity.par
+ sers.common.input.concurrent;uses:="com.univocity.parsers.common.inpu
+ t";version="2.1.1",com.univocity.parsers.common.processor;uses:="com.
+ univocity.parsers.common,com.univocity.parsers.common.fields,com.univ
+ ocity.parsers.conversions";version="2.1.1",com.univocity.parsers.comm
+ on.record;uses:="com.univocity.parsers.common,com.univocity.parsers.c
+ ommon.fields,com.univocity.parsers.conversions";version="2.1.1",com.u
+ nivocity.parsers.common.routine;uses:="com.univocity.parsers.common";
+ version="2.1.1",com.univocity.parsers.conversions;version="2.1.1",com
+ .univocity.parsers.csv;uses:="com.univocity.parsers.common,com.univoc
+ ity.parsers.common.input,com.univocity.parsers.common.routine";versio
+ n="2.1.1",com.univocity.parsers.fixed;uses:="com.univocity.parsers.co
+ mmon,com.univocity.parsers.common.input,com.univocity.parsers.common.
+ routine";version="2.1.1",com.univocity.parsers.tsv;uses:="com.univoci
+ ty.parsers.common,com.univocity.parsers.common.routine";version="2.1.
+ 1"
+Implementation-Title: univocity-parsers
+Implementation-Version: 2.1.1
+Specification-Vendor: uniVocity Software Pty Ltd
+Built-By: jbax
+Tool: Bnd-2.3.0.201405100607
+Bundle-Name: univocity-parsers
+Created-By: Apache Maven Bundle Plugin
+Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.6))"
+Bundle-Vendor: uniVocity Software Pty Ltd
+Implementation-Vendor: uniVocity Software Pty Ltd
+Implementation-Vendor-Id: com.univocity
+Bundle-Version: 2.1.1
+Build-Jdk: 1.6.0_65
+Bnd-LastModified: 1462864178883
+Bundle-ManifestVersion: 2
+Specification-Title: univocity-parsers
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
+Bundle-Description: uniVocity's open source parsers for processing dif
+ ferent text formats using a consistent API
+Bundle-SymbolicName: com.univocity.parsers
+Bundle-DocURL: www.univocity.com
+Specification-Version: 2.1.1
+Archiver-Version: Plexus Archiver
+

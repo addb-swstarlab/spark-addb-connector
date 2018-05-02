@@ -1,0 +1,23 @@
+Manifest-Version: 1.0
+Export-Package: javax.validation.groups;version="1.1.0.Final",javax.va
+ lidation.metadata;uses:="javax.validation";version="1.1.0.Final",java
+ x.validation;uses:="javax.validation.executable,javax.validation.meta
+ data,javax.validation.spi,javax.validation.bootstrap";version="1.1.0.
+ Final",javax.validation.executable;version="1.1.0.Final",javax.valida
+ tion.constraintvalidation;version="1.1.0.Final",javax.validation.spi;
+ uses:="javax.validation";version="1.1.0.Final",javax.validation.boots
+ trap;uses:="javax.validation";version="1.1.0.Final",javax.validation.
+ constraints;uses:="javax.validation";version="1.1.0.Final"
+Built-By: manu
+Tool: Bnd-1.50.0
+Bundle-Name: Bean Validation API
+Created-By: Apache Maven Bundle Plugin
+Build-Jdk: 1.7.0-b22
+Bundle-Version: 1.1.0.Final
+Bnd-LastModified: 1365598958549
+Bundle-ManifestVersion: 2
+Bundle-Description: Bean Validation API
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
+Bundle-SymbolicName: javax.validation.api
+Archiver-Version: Plexus Archiver
+

@@ -1,0 +1,35 @@
+// ------------------------------------------------------------------
+// Transitive dependencies of this project determined from the
+// maven pom organized by organization.
+// ------------------------------------------------------------------
+
+Curator Recipes
+
+
+From: 'an unknown organization'
+  - Guava: Google Core Libraries for Java (http://code.google.com/p/guava-libraries/guava) com.google.guava:guava:bundle:14.0.1
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - JLine (http://jline.sourceforge.net) jline:jline:jar:0.9.94
+    License: BSD  (LICENSE.txt)
+  - zookeeper  org.apache.zookeeper:zookeeper:pom:3.4.5
+
+
+From: 'JBoss, a division of Red Hat, Inc.' (http://www.jboss.org)
+  - The Netty Project (http://www.jboss.org/netty/) org.jboss.netty:netty:bundle:3.2.2.Final
+    License: Apache License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0)
+
+From: 'QOS.ch' (http://www.qos.ch)
+  - SLF4J API Module (http://www.slf4j.org) org.slf4j:slf4j-api:jar:1.6.4
+    License: MIT License  (http://www.opensource.org/licenses/mit-license.php)
+  - SLF4J LOG4J-12 Binding (http://www.slf4j.org) org.slf4j:slf4j-log4j12:jar:1.6.1
+    License: MIT License  (http://www.opensource.org/licenses/mit-license.php)
+
+From: 'The Apache Software Foundation' (http://www.apache.org/)
+  - Curator Client (http://curator.apache.org/curator-client) org.apache.curator:curator-client:bundle:2.4.0
+    License: The Apache Software License, Version 2.0  (file:///Users/jordanzimmerman/dev/oss/apache/curator/target/checkout/curator-client/LICENSE)
+  - Curator Framework (http://curator.apache.org/curator-framework) org.apache.curator:curator-framework:bundle:2.4.0
+    License: The Apache Software License, Version 2.0  (file:///Users/jordanzimmerman/dev/oss/apache/curator/target/checkout/curator-framework/LICENSE)
+
+
+
+

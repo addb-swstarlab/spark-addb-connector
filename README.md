@@ -32,6 +32,6 @@ OPTIONS (table "kv", AUTH "foobared", hi "bye");
 INSERT OVERWRITE table kv SELECT t.* FROM (SELECT 'LJH', 3142) t;
 ```
 
-### SELECT (cannot operate)
+### SELECT (cannot be implemented)
 
 

@@ -1,0 +1,53 @@
+Manifest-Version: 1.0
+Archiver-Version: Plexus Archiver
+Created-By: 1.4.2_18 (Sun Microsystems Inc.)
+Built-By: oheger
+Build-Jdk: 1.4.2_18
+Implementation-Title: Commons Configuration
+Implementation-Vendor: The Apache Software Foundation
+Implementation-Vendor-Id: org.apache
+Implementation-Version: 1.6
+Specification-Title: Commons Configuration
+Specification-Vendor: The Apache Software Foundation
+Specification-Version: 1.6
+X-Compile-Source-JDK: 1.3
+X-Compile-Target-JDK: 1.3
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
+Import-Package: javax.mail.internet,javax.naming,javax.servlet,javax.s
+ ql,javax.xml.parsers,javax.xml.transform,javax.xml.transform.dom,java
+ x.xml.transform.stream,org.apache.commons.beanutils,org.apache.common
+ s.codec.binary,org.apache.commons.collections,org.apache.commons.coll
+ ections.iterators,org.apache.commons.collections.map,org.apache.commo
+ ns.collections.set,org.apache.commons.configuration;version="1.6",org
+ .apache.commons.configuration.beanutils;version="1.6",org.apache.comm
+ ons.configuration.event;version="1.6",org.apache.commons.configuratio
+ n.interpol;version="1.6",org.apache.commons.configuration.plist;versi
+ on="1.6",org.apache.commons.configuration.reloading;version="1.6",org
+ .apache.commons.configuration.tree;version="1.6",org.apache.commons.c
+ onfiguration.tree.xpath;version="1.6",org.apache.commons.configuratio
+ n.web;version="1.6",org.apache.commons.digester,org.apache.commons.di
+ gester.substitution,org.apache.commons.digester.xmlrules,org.apache.c
+ ommons.jxpath,org.apache.commons.jxpath.ri,org.apache.commons.jxpath.
+ ri.compiler,org.apache.commons.jxpath.ri.model,org.apache.commons.lan
+ g,org.apache.commons.lang.exception,org.apache.commons.lang.text,org.
+ apache.commons.logging,org.apache.commons.logging.impl,org.apache.too
+ ls.ant.taskdefs,org.w3c.dom,org.xml.sax,org.xml.sax.helpers
+Bnd-LastModified: 1229672080479
+Export-Package: org.apache.commons.configuration.event;version="1.6",o
+ rg.apache.commons.configuration.plist;version="1.6",org.apache.common
+ s.configuration.reloading;version="1.6",org.apache.commons.configurat
+ ion.interpol;version="1.6",org.apache.commons.configuration.web;versi
+ on="1.6",org.apache.commons.configuration.tree.xpath;version="1.6",or
+ g.apache.commons.configuration;version="1.6",org.apache.commons.confi
+ guration.beanutils;version="1.6",org.apache.commons.configuration.tre
+ e;version="1.6"
+Bundle-Version: 1.6
+Bundle-Description: Tools to assist in the reading of configuration/pr
+ eferences files in        various formats
+Bundle-Name: Commons Configuration
+Bundle-DocURL: http://commons.apache.org/configuration/
+Bundle-ManifestVersion: 2
+Bundle-Vendor: The Apache Software Foundation
+Bundle-SymbolicName: org.apache.commons.configuration
+Tool: Bnd-0.0.238
+

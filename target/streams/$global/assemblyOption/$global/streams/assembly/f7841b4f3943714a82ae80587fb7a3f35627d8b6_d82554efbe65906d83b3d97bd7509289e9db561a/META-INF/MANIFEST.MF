@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Ant-Version: Apache Ant 1.6.2
+Created-By: Blackdown-1.4.2-02 (Blackdown Java-Linux Team)
+
+Name: xmlenc
+Specification-Title: xmlenc
+Specification-Version: 0.52
+Specification-Vendor: Ernst de Haan
+Implementation-Title: xmlenc
+Implementation-Version: 0.52
+Implementation-Vendor: Ernst de Haan
+

@@ -1,0 +1,75 @@
+Manifest-Version: 1.0
+Export-Package: org.apache.avro.ipc.reflect;uses:="org.apache.avro.ipc
+ ,org.apache.avro,org.apache.avro.specific,org.apache.avro.ipc.specifi
+ c,org.apache.avro.io,org.apache.avro.reflect";version="1.7.7",org.apa
+ che.avro.ipc;uses:="org.slf4j,org.apache.avro,org.apache.avro.specifi
+ c,org.apache.avro.generic,org.apache.avro.data,org.mortbay.jetty,java
+ x.servlet,org.mortbay.jetty.servlet,org.mortbay.jetty.nio,org.jboss.n
+ etty.handler.execution,org.jboss.netty.channel,org.jboss.netty.channe
+ l.group,org.jboss.netty.channel.socket.nio,org.jboss.netty.bootstrap,
+ org.jboss.netty.buffer,org.jboss.netty.handler.codec.frame,org.jboss.
+ netty.handler.codec.oneone,org.apache.avro.util,org.apache.avro.io,ja
+ vax.servlet.http,javax.security.sasl,javax.security.auth.callback,org
+ .apache.avro.ipc.generic";version="1.7.7",org.apache.avro.ipc.trace.t
+ emplates;version="1.7.7",org.apache.avro.ipc.stats.templates;version=
+ "1.7.7",org.apache.avro.ipc.stats;uses:="org.mortbay.resource,org.mor
+ tbay.jetty.servlet,org.apache.avro.ipc,org.apache.avro,org.mortbay.je
+ tty,javax.servlet,org.apache.velocity,org.apache.velocity.exception,o
+ rg.apache.velocity.context,org.apache.velocity.app,javax.servlet.http
+ ";version="1.7.7",org.apache.avro.ipc.generic;uses:="org.apache.avro.
+ ipc,org.apache.avro.generic,org.apache.avro,org.apache.avro.io";versi
+ on="1.7.7",org.apache.avro.ipc.specific;uses:="org.apache.avro.ipc,or
+ g.apache.avro,org.apache.avro.specific,org.apache.avro.io,org.apache.
+ avro.generic,org.apache.avro.ipc.generic";version="1.7.7",org.apache.
+ avro.ipc.trace;uses:="org.apache.avro.ipc,org.apache.avro,org.apache.
+ avro.specific,org.apache.avro.file,org.apache.avro.io,org.slf4j,org.a
+ pache.avro.generic,org.apache.avro.data,org.mortbay.resource,org.mort
+ bay.jetty.servlet,javax.servlet,org.apache.velocity,org.apache.veloci
+ ty.exception,org.apache.velocity.context,org.apache.velocity.app,org.
+ apache.avro.ipc.specific,javax.servlet.http,org.mortbay.jetty,org.mor
+ tbay.jetty.bio";version="1.7.7"
+Ignore-Package: org.apache.avro.ipc.reflect,org.apache.avro.ipc.trace.
+ templates,org.apache.avro.ipc,org.apache.avro.ipc.stats.templates,org
+ .apache.avro.ipc.stats,org.apache.avro.ipc.generic,org.apache.avro.ip
+ c.specific,org.apache.avro.ipc.trace
+Implementation-Title: Apache Avro IPC
+Implementation-Version: 1.7.7
+Built-By: cutting
+Specification-Vendor: The Apache Software Foundation
+Tool: Bnd-0.0.357
+Bundle-Name: Apache Avro IPC
+Created-By: Apache Maven Bundle Plugin
+Implementation-Vendor: The Apache Software Foundation
+Bundle-Vendor: The Apache Software Foundation
+Implementation-Vendor-Id: org.apache.avro
+Bundle-Version: 1.7.7
+Build-Jdk: 1.7.0_45
+Bnd-LastModified: 1405714165391
+Bundle-ManifestVersion: 2
+Specification-Title: Apache Avro IPC
+Bundle-Description: Avro inter-process communication components
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
+Bundle-DocURL: http://www.apache.org/
+Import-Package: javax.security.auth.callback,javax.security.sasl,javax
+ .servlet;resolution:=optional;version="2.5",javax.servlet.http;resolu
+ tion:=optional;version="2.5",org.apache.avro;version="1.7.7",org.apac
+ he.avro.data;version="1.7.7",org.apache.avro.file;version="1.7.7",org
+ .apache.avro.generic;version="1.7.7",org.apache.avro.io;version="1.7.
+ 7",org.apache.avro.reflect;version="1.7.7",org.apache.avro.specific;v
+ ersion="1.7.7",org.apache.avro.util;version="1.7.7",org.apache.veloci
+ ty;resolution:=optional,org.apache.velocity.app;resolution:=optional,
+ org.apache.velocity.context;resolution:=optional,org.apache.velocity.
+ exception;resolution:=optional,org.jboss.netty.bootstrap;version="3.4
+ ",org.jboss.netty.buffer;version="3.4",org.jboss.netty.channel;versio
+ n="3.4",org.jboss.netty.channel.group;version="3.4",org.jboss.netty.c
+ hannel.socket.nio;version="3.4",org.jboss.netty.handler.codec.frame;v
+ ersion="3.4",org.jboss.netty.handler.codec.oneone;version="3.4",org.j
+ boss.netty.handler.execution;version="3.4",org.mortbay.jetty;resoluti
+ on:=optional;version="6.1",org.mortbay.jetty.bio;resolution:=optional
+ ;version="6.1",org.mortbay.jetty.nio;resolution:=optional;version="6.
+ 1",org.mortbay.jetty.servlet;resolution:=optional;version="6.1",org.m
+ ortbay.resource;resolution:=optional;version="6.1",org.slf4j;version=
+ "1.6"
+Bundle-SymbolicName: avro-ipc
+Specification-Version: 1.7.7
+

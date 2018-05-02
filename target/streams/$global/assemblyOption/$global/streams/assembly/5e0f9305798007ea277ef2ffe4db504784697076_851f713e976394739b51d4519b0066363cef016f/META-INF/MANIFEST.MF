@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Implementation-Vendor: The Apache Software Foundation
+Implementation-Title: mesos
+Implementation-Version: 0.21.1
+Implementation-Vendor-Id: org.apache.mesos
+Built-By: tnachen
+Build-Jdk: 1.7.0_55
+Specification-Vendor: The Apache Software Foundation
+Specification-Title: mesos
+Created-By: Apache Maven 3.2.1
+Specification-Version: 0.21.1
+Archiver-Version: Plexus Archiver
+

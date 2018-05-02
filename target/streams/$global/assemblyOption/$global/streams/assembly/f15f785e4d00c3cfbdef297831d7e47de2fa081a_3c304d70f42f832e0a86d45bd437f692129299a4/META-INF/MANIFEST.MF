@@ -1,0 +1,39 @@
+Manifest-Version: 1.0
+Export-Package: org.codehaus.jackson.format;uses:="org.codehaus.jackso
+ n.io,org.codehaus.jackson";version="1.9.13",org.codehaus.jackson.io;u
+ ses:="org.codehaus.jackson.util,org.codehaus.jackson";version="1.9.13
+ ",org.codehaus.jackson.sym;uses:="org.codehaus.jackson.util";version=
+ "1.9.13",org.codehaus.jackson.util;uses:="org.codehaus.jackson.io,org
+ .codehaus.jackson.impl,org.codehaus.jackson";version="1.9.13",org.cod
+ ehaus.jackson.annotate;version="1.9.13",org.codehaus.jackson.impl;use
+ s:="org.codehaus.jackson.format,org.codehaus.jackson.io,org.codehaus.
+ jackson.sym,org.codehaus.jackson.util,org.codehaus.jackson";version="
+ 1.9.13",org.codehaus.jackson;uses:="org.codehaus.jackson.format,org.c
+ odehaus.jackson.sym,org.codehaus.jackson.annotate,org.codehaus.jackso
+ n.impl,org.codehaus.jackson.type,org.codehaus.jackson.io,org.codehaus
+ .jackson.util";version="1.9.13",org.codehaus.jackson.type;version="1.
+ 9.13"
+Implementation-Title: Jackson JSON processor
+Implementation-Version: 1.9.13
+Built-By: tsaloranta
+Specification-Vendor: http://www.ietf.org/rfc/rfc4627.txt
+Tool: Bnd-unknown version
+Bundle-Name: Jackson JSON processor
+Created-By: 1.7.0_10-ea (Oracle Corporation)
+Bundle-RequiredExecutionEnvironment: J2SE-1.5, JavaSE-1.6
+Implementation-Vendor: http://fasterxml.com
+Bundle-Vendor: http://fasterxml.com
+Bundle-Version: 1.9.13
+Bnd-LastModified: 1373857386063
+Specification-Title: JSON - JavaScript Object Notation
+Bundle-ManifestVersion: 2
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
+Specification-Version: 1.0
+Import-Package: org.codehaus.jackson;version="1.9.13",org.codehaus.jac
+ kson.annotate;version="1.9.13",org.codehaus.jackson.format;version="1
+ .9.13",org.codehaus.jackson.impl;version="1.9.13",org.codehaus.jackso
+ n.io;version="1.9.13",org.codehaus.jackson.sym;version="1.9.13",org.c
+ odehaus.jackson.type;version="1.9.13",org.codehaus.jackson.util;versi
+ on="1.9.13"
+Bundle-SymbolicName: jackson-core-asl
+

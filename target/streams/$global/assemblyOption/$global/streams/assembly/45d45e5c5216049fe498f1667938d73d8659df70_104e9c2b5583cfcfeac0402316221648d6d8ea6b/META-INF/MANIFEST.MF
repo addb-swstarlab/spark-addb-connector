@@ -1,0 +1,30 @@
+Manifest-Version: 1.0
+Bnd-LastModified: 1407413291581
+Build-Id: 08/07/2014 02:08 PM
+Build-Jdk: 1.7.0_60
+Built-By: m_potociar
+Bundle-Description: Java API for RESTful Web Services (JAX-RS)
+Bundle-DocURL: http://www.oracle.com/
+Bundle-License: http://glassfish.java.net/public/CDDL+GPL_1_1.html, http
+ ://glassfish.java.net/public/CDDL+GPL_1_1.html
+Bundle-ManifestVersion: 2
+Bundle-Name: javax.ws.rs-api
+Bundle-SymbolicName: javax.ws.rs-api
+Bundle-Vendor: Oracle Corporation
+Bundle-Version: 2.0.1
+Created-By: Apache Maven Bundle Plugin
+DynamicImport-Package: *
+Export-Package: javax.ws.rs;uses:="javax.ws.rs.core";version="2.0.1",jav
+ ax.ws.rs.client;uses:="javax.net.ssl,javax.ws.rs,javax.ws.rs.core";vers
+ ion="2.0.1",javax.ws.rs.container;uses:="javax.ws.rs.core";version="2.0
+ .1",javax.ws.rs.core;uses:="javax.ws.rs,javax.xml.bind.annotation,javax
+ .xml.bind.annotation.adapters,javax.xml.namespace";version="2.0.1",java
+ x.ws.rs.ext;uses:="javax.ws.rs,javax.ws.rs.core";version="2.0.1"
+Extension-Name: javax.ws.rs
+Implementation-Version: 2.0.1
+Import-Package: javax.net.ssl,javax.xml.bind.annotation,javax.xml.bind.a
+ nnotation.adapters,javax.xml.namespace
+Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.6))"
+Specification-Vendor: Oracle Corporation
+Specification-Version: 2.0
+Tool: Bnd-2.3.0.201405100607

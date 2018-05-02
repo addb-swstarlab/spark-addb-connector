@@ -1,0 +1,34 @@
+Manifest-Version: 1.0
+Bnd-LastModified: 1391641701429
+Build-Jdk: 1.7.0_25
+Built-By: jordanzimmerman
+Bundle-Description: Low-level API
+Bundle-DocURL: http://www.apache.org/
+Bundle-License: file:///Users/jordanzimmerman/dev/oss/apache/curator/tar
+ get/checkout/curator-client/LICENSE
+Bundle-ManifestVersion: 2
+Bundle-Name: Curator Client
+Bundle-SymbolicName: curator-client
+Bundle-Vendor: The Apache Software Foundation
+Bundle-Version: 2.4.0
+Created-By: Apache Maven Bundle Plugin
+Export-Package: org.apache.curator.ensemble.fixed;uses:="org.apache.cura
+ tor.ensemble,com.google.common.base";version="2.4.0",org.apache.curator
+ .ensemble.exhibitor;uses:="org.apache.curator.utils,com.google.common.c
+ ollect,org.apache.curator,com.google.common.base,org.slf4j,org.apache.c
+ urator.ensemble";version="2.4.0",org.apache.curator;uses:="org.apache.z
+ ookeeper,org.apache.curator.ensemble,org.apache.curator.utils,org.slf4j
+ ,org.apache.curator.drivers,org.apache.curator.ensemble.fixed,com.googl
+ e.common.base,com.google.common.collect";version="2.4.0",org.apache.cur
+ ator.ensemble;version="2.4.0",org.apache.curator.utils;uses:="com.googl
+ e.common.collect,com.google.common.base,org.slf4j,com.google.common.io,
+ org.apache.curator.drivers,org.apache.zookeeper,org.apache.curator,org.
+ apache.zookeeper.data,com.google.common.util.concurrent";version="2.4.0
+ ",org.apache.curator.retry;uses:="org.apache.curator,org.slf4j";version
+ ="2.4.0",org.apache.curator.drivers;version="2.4.0"
+Import-Package: com.google.common.base;version="[14.0,15)",com.google.co
+ mmon.collect;version="[14.0,15)",com.google.common.io;version="[14.0,15
+ )",com.google.common.util.concurrent;version="[14.0,15)",org.apache.zoo
+ keeper;version="[3.4,4)",org.apache.zookeeper.data;version="[3.4,4)",or
+ g.slf4j;version="[1.6,2)"
+Tool: Bnd-1.50.0

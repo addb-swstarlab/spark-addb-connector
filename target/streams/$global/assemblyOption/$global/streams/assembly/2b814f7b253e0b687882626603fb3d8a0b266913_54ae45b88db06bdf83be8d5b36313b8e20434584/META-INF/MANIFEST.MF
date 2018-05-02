@@ -1,0 +1,66 @@
+Manifest-Version: 1.0
+Bnd-LastModified: 1391641744085
+Build-Jdk: 1.7.0_25
+Built-By: jordanzimmerman
+Bundle-Description: All of the recipes listed on the ZooKeeper recipes d
+ oc (except two phase commit).
+Bundle-DocURL: http://www.apache.org/
+Bundle-License: file:///Users/jordanzimmerman/dev/oss/apache/curator/tar
+ get/checkout/curator-recipes/LICENSE
+Bundle-ManifestVersion: 2
+Bundle-Name: Curator Recipes
+Bundle-SymbolicName: curator-recipes
+Bundle-Vendor: The Apache Software Foundation
+Bundle-Version: 2.4.0
+Created-By: Apache Maven Bundle Plugin
+Export-Package: org.apache.curator.framework.recipes.atomic;uses:="org.a
+ pache.curator.framework,org.apache.curator,com.google.common.base,org.a
+ pache.zookeeper,org.apache.curator.framework.recipes.locks,org.apache.c
+ urator.utils,org.apache.zookeeper.data,org.apache.curator.framework.api
+ ,org.apache.curator.retry";version="2.4.0",org.apache.curator.framework
+ .recipes.cache;uses:="org.apache.zookeeper.data,org.apache.curator.fram
+ ework,org.apache.curator.framework.state,org.slf4j,org.apache.zookeeper
+ ,org.apache.curator.framework.api,com.google.common.base,org.apache.cur
+ ator,org.apache.curator.utils,org.apache.curator.framework.listen,com.g
+ oogle.common.collect";version="2.4.0",org.apache.curator.framework.reci
+ pes.locks;uses:="org.apache.curator.framework,org.apache.curator.utils,
+ com.google.common.base,org.apache.zookeeper.data,org.apache.curator.fra
+ mework.api,org.slf4j,com.google.common.collect,com.google.common.util.c
+ oncurrent,org.apache.curator.framework.state,org.apache.curator.framewo
+ rk.recipes.shared,org.apache.zookeeper,org.apache.curator,org.apache.cu
+ rator.framework.imps";version="2.4.0",org.apache.curator.framework.reci
+ pes.shared;uses:="org.apache.curator.framework,org.apache.curator.frame
+ work.state,com.google.common.collect,com.google.common.util.concurrent,
+ org.apache.curator.framework.listen,org.apache.zookeeper,org.apache.cur
+ ator.framework.api,com.google.common.base,org.slf4j,org.apache.zookeepe
+ r.data";version="2.4.0",org.apache.curator.framework.recipes.queue;uses
+ :="org.apache.curator.framework,com.google.common.collect,org.apache.cu
+ rator.framework.state,org.apache.zookeeper,org.apache.curator.framework
+ .api,com.google.common.base,org.apache.curator.framework.listen,org.slf
+ 4j,org.apache.curator.utils,org.apache.curator.framework.api.transactio
+ n,org.apache.zookeeper.data,com.google.common.util.concurrent,org.apach
+ e.curator,org.apache.curator.framework.recipes.leader";version="2.4.0",
+ org.apache.curator.framework.recipes.leader;uses:="org.apache.curator.f
+ ramework,org.apache.curator.framework.state,org.apache.curator.framewor
+ k.recipes.locks,org.apache.zookeeper,org.apache.curator.framework.api,o
+ rg.slf4j,com.google.common.base,org.apache.curator.utils,org.apache.cur
+ ator.framework.listen,com.google.common.collect";version="2.4.0",org.ap
+ ache.curator.framework.recipes.nodes;uses:="org.apache.zookeeper,org.ap
+ ache.curator.framework,org.apache.curator.framework.api,com.google.comm
+ on.base,org.slf4j";version="2.4.0",org.apache.curator.framework.recipes
+ .barriers;uses:="org.apache.zookeeper,org.apache.curator.framework,org.
+ apache.curator.framework.api,com.google.common.base,com.google.common.c
+ ollect,org.apache.curator.utils,org.apache.zookeeper.data";version="2.4
+ .0"
+Import-Package: com.google.common.base;version="[14.0,15)",com.google.co
+ mmon.collect;version="[14.0,15)",com.google.common.util.concurrent;vers
+ ion="[14.0,15)",org.apache.curator;version="[2.4,3)",org.apache.curator
+ .framework;version="[2.4,3)",org.apache.curator.framework.api;version="
+ [2.4,3)",org.apache.curator.framework.api.transaction;version="[2.4,3)"
+ ,org.apache.curator.framework.imps;version="[2.4,3)",org.apache.curator
+ .framework.listen;version="[2.4,3)",org.apache.curator.framework.state;
+ version="[2.4,3)",org.apache.curator.retry;version="[2.4,3)",org.apache
+ .curator.utils;version="[2.4,3)",org.apache.zookeeper;version="[3.4,4)"
+ ,org.apache.zookeeper.data;version="[3.4,4)",org.slf4j;version="[1.6,2)
+ "
+Tool: Bnd-1.50.0

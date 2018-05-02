@@ -1,0 +1,31 @@
+Manifest-Version: 1.0
+Bnd-LastModified: 1455626089910
+Build-Jdk: 1.8.0_72
+Built-By: pavel
+Bundle-Description: Jersey core Servlet 3.x implementation
+Bundle-DocURL: http://www.oracle.com/
+Bundle-License: http://glassfish.java.net/public/CDDL+GPL_1_1.html
+Bundle-ManifestVersion: 2
+Bundle-Name: jersey-container-servlet
+Bundle-SymbolicName: org.glassfish.jersey.containers.jersey-container-se
+ rvlet
+Bundle-Vendor: Oracle Corporation
+Bundle-Version: 2.22.2
+Created-By: Apache Maven Bundle Plugin
+Export-Package: org.glassfish.jersey.servlet.async;uses:="javax.servlet,
+ org.glassfish.jersey.servlet.spi,javax.servlet.http";version="2.22.2",o
+ rg.glassfish.jersey.servlet.init;uses:="javax.servlet,org.glassfish.jer
+ sey.servlet.spi,javax.servlet.annotation,org.glassfish.jersey.servlet.i
+ nternal,jersey.repackaged.com.google.common.collect,javax.ws.rs.ext,jav
+ ax.ws.rs.core,org.glassfish.jersey.servlet.internal.spi,javax.ws.rs,org
+ .glassfish.jersey.servlet,org.glassfish.jersey.server";version="2.22.2"
+Import-Package: javax.servlet;version="[3.0,4.0)",javax.servlet.annotati
+ on;version="[3.0,4.0)",javax.servlet.http;version="[3.0,4.0)",javax.ws.
+ rs;version="[2.0,3)",javax.ws.rs.core;version="[2.0,3)",javax.ws.rs.ext
+ ;version="[2.0,3)",jersey.repackaged.com.google.common.collect;version=
+ "[2.22,3)",org.glassfish.jersey.internal.l10n;version="[2.22,3)",org.gl
+ assfish.jersey.server;version="[2.22,3)",org.glassfish.jersey.servlet;v
+ ersion="[2.22,3)",org.glassfish.jersey.servlet.internal;version="[2.22,
+ 3)",org.glassfish.jersey.servlet.internal.spi;version="[2.22,3)",org.gl
+ assfish.jersey.servlet.spi;version="[2.22,3)"
+Tool: Bnd-1.50.0

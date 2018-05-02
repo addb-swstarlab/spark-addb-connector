@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Export-Package: org.aopalliance.aop;version="1.0",org.aopalliance.inte
+ rcept;version="1.0";uses:="org.aopalliance.aop"
+Built-By: java_re
+Tool: Bnd-2.1.0.20130426-122213
+Bundle-Name: aopalliance version 1.0 repackaged as a module
+Created-By: Apache Maven Bundle Plugin
+Bundle-Vendor: Oracle Corporation
+Build-Jdk: 1.7.0_75
+Bundle-Version: 2.4.0.b34
+Bnd-LastModified: 1447934108424
+Bundle-ManifestVersion: 2
+Bundle-License: https://glassfish.java.net/nonav/public/CDDL+GPL_1_1.h
+ tml
+Bundle-Description: Dependency Injection Kernel
+Bundle-SymbolicName: org.glassfish.hk2.external.aopalliance-repackaged
+Bundle-DocURL: http://www.oracle.com
+Embed-Dependency: *;scope=compile;inline=true
+Archiver-Version: Plexus Archiver
+

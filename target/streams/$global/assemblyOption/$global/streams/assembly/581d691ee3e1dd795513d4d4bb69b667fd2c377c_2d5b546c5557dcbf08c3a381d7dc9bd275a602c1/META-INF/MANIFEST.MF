@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Archiver-Version: Plexus Archiver
+Created-By: Apache Maven
+Built-By: ceki
+Build-Jdk: 1.7.0_17
+Bundle-Description: JUL to SLF4J bridge
+Bundle-Version: 1.7.16
+Implementation-Version: 1.7.16
+X-Compile-Source-JDK: 1.5
+X-Compile-Target-JDK: 1.5
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: jul.to.slf4j
+Bundle-Name: jul-to-slf4j
+Bundle-Vendor: SLF4J.ORG
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Export-Package: org.slf4j.bridge;version=1.7.16;uses:="org.slf4j,org.s
+ lf4j.spi"
+Import-Package: org.slf4j;version=1.7.16,org.slf4j.spi;version=1.7.16
+

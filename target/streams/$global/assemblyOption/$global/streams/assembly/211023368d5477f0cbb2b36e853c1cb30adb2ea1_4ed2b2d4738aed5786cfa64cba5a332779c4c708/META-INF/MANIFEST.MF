@@ -1,0 +1,25 @@
+Manifest-Version: 1.0
+Archiver-Version: Plexus Archiver
+Created-By: 1.6.0_14 (Sun Microsystems Inc.)
+Built-By: java_re
+Build-Jdk: 1.6.0_14
+Export-Package: org.glassfish.hk2.osgiresourcelocator;uses:="org.osgi.
+ framework";version="1.0.1"
+Bundle-ActivationPolicy: lazy
+Tool: Bnd-0.0.357
+Bundle-Name: OSGi resource locator bundle - used by various API provid
+ ers that rely on META-INF/services mechanism to locate providers.
+Bundle-Vendor: GlassFish Community
+Bundle-Version: 1.0.1
+Bnd-LastModified: 1294930782379
+Bundle-Activator: org.glassfish.hk2.osgiresourcelocator.Activator
+Bundle-ManifestVersion: 2
+Bundle-License: https://glassfish.dev.java.net/nonav/public/CDDL+GPL.h
+ tml
+Bundle-Description: See http://wiki.glassfish.java.net/Wiki.jsp?page=J
+ dkSpiOsgi for more information
+Import-Package: org.glassfish.hk2.osgiresourcelocator;version="[1.0,1.
+ 1)",org.osgi.framework;version="1.5"
+Bundle-SymbolicName: org.glassfish.hk2.osgi-resource-locator
+Bundle-DocURL: https://glassfish.dev.java.net
+

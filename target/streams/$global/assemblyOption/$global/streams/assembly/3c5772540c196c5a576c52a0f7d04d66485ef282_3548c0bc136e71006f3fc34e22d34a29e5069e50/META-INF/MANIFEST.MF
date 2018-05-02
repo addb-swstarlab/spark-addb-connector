@@ -1,0 +1,57 @@
+Manifest-Version: 1.0
+Export-Package: org.apache.avro;uses:="org.codehaus.jackson.node,org.c
+ odehaus.jackson,org.codehaus.jackson.map,org.apache.avro.generic,org.
+ codehaus.jackson.io,org.slf4j,org.apache.avro.io.parsing";version="1.
+ 7.7",org.apache.avro.generic;uses:="org.apache.avro,org.apache.avro.i
+ o,org.apache.avro.util,org.codehaus.jackson,org.apache.avro.io.parsin
+ g,org.apache.avro.data";version="1.7.7",org.apache.avro.file;uses:="o
+ rg.apache.commons.compress.compressors.bzip2,org.apache.avro,org.apac
+ he.avro.io,org.apache.avro.util,org.apache.avro.generic,org.xerial.sn
+ appy,org.apache.commons.compress.utils,org.apache.commons.compress.co
+ mpressors.xz";version="1.7.7",org.apache.avro.util;uses:="org.apache.
+ avro.io";version="1.7.7",org.apache.avro.specific;uses:="org.apache.a
+ vro,org.apache.avro.generic,org.apache.avro.util,org.apache.avro.io,o
+ rg.apache.avro.data";version="1.7.7",org.apache.avro.data;uses:="org.
+ codehaus.jackson,org.apache.avro,org.apache.avro.io,org.codehaus.jack
+ son.node,org.apache.avro.generic";version="1.7.7",org.apache.avro.io.
+ parsing;uses:="org.apache.avro,org.codehaus.jackson,org.apache.avro.i
+ o";version="1.7.7",org.apache.avro.io;uses:="org.apache.avro,org.apac
+ he.avro.generic,org.apache.avro.util,org.codehaus.jackson,org.apache.
+ avro.io.parsing,org.codehaus.jackson.util";version="1.7.7",org.apache
+ .avro.reflect;uses:="org.apache.avro.io,org.apache.avro,sun.misc,org.
+ apache.avro.util,com.thoughtworks.paranamer,org.codehaus.jackson.node
+ ,org.apache.avro.generic,org.codehaus.jackson,org.apache.avro.specifi
+ c";version="1.7.7"
+Ignore-Package: org.apache.avro.generic,org.apache.avro,org.apache.avr
+ o.file,org.apache.avro.util,org.apache.avro.specific,org.apache.avro.
+ data,org.apache.avro.io.parsing,org.apache.avro.io,org.apache.avro.re
+ flect
+Implementation-Title: Apache Avro
+Implementation-Version: 1.7.7
+Built-By: cutting
+Specification-Vendor: The Apache Software Foundation
+Tool: Bnd-0.0.357
+Bundle-Name: Apache Avro
+Created-By: Apache Maven Bundle Plugin
+Implementation-Vendor: The Apache Software Foundation
+Bundle-Vendor: The Apache Software Foundation
+Implementation-Vendor-Id: org.apache.avro
+Bundle-Version: 1.7.7
+Build-Jdk: 1.7.0_45
+Bnd-LastModified: 1405714122455
+Bundle-ManifestVersion: 2
+Specification-Title: Apache Avro
+Bundle-Description: Avro core components
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
+Bundle-DocURL: http://www.apache.org/
+Import-Package: com.thoughtworks.paranamer,org.apache.commons.compress
+ .compressors.bzip2;version="1.4",org.apache.commons.compress.compress
+ ors.xz;version="1.4",org.apache.commons.compress.utils;version="1.4",
+ org.codehaus.jackson;version="1.9",org.codehaus.jackson.io;version="1
+ .9",org.codehaus.jackson.map;version="1.9",org.codehaus.jackson.node;
+ version="1.9",org.codehaus.jackson.util;version="1.9",org.slf4j;versi
+ on="1.6",org.xerial.snappy;resolution:=optional;version="1.0",sun.mis
+ c
+Bundle-SymbolicName: avro
+Specification-Version: 1.7.7
+
