@@ -18,9 +18,16 @@ case class Configuration (
   extends Serializable
   with Logging {
   // Since options are already checked, do not change to default value  
-  def get(key:String):Any = {
+  def get(key:String): String = {
 //    parameters.getOrElse(name, defaultValue)
-    parameters.get(key)
+    parameters.get(key).get.toString
+  }
+  def getOrElse(key:String, defaultValue:String):String = {
+    if ( parameters.get(key).isEmpty && defaultValue == null ) {
+      null
+    } else {
+      parameters.getOrElse(key, defaultValue).toString
+    }
   }
   def gets(key:String):Array[String] = {
     parameters.map(_._2.toString()).toArray

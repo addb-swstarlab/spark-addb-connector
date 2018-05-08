@@ -3,20 +3,22 @@ package kr.ac.yonsei.delab.addb_srconnector
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 
-object ColumnType
-extends Enumeration {
+import redis.clients.addb_jedis.Protocol
+
+import kr.ac.yonsei.delab.addb_srconnector.util.KeyUtil
+
+
+object ColumnType extends Enumeration {
   type ColumnType = Value
   val StringType = Value( "String" )
   val NumericType = Value( "Numeric" )
 }
 
 //import ColumnType._
-case class RedisColumn(
-  val name: String,
-  val columnType: ColumnType.Value ) { }
+case class RedisColumn(val name: String, val columnType: ColumnType.Value ) { }
 
 case class RedisTable (
-    val name: String,
+    val id: Int,
     val columns: Array[RedisColumn],
 //  val indices: Array[RedisIndex],
     val partitionColumnNames: Array[String]) {
@@ -31,18 +33,28 @@ case class RedisTable (
 //  extends Serializable {
 //}
 
-case class RedisRow(
-		val table: RedisTable,
+case class RedisRow( val table: RedisTable, val columns: Map[String, String])
 //  override val columns: Map[String, String])
-		val columns: Map[String, String])
 //  extends RedisRowBase(columns) {
 extends Serializable {
 	
 }
 
-class RedisStore
-  (val redisConfig:RedisConfig)
+class RedisStore (val redisConfig:RedisConfig)
   extends Configurable {
+  
+  // For INSERT statement (add function) 
+  val redisCluster: RedisCluster = {
+    new RedisCluster({
+      val configuration = this.redisConfig.configuration
+      val host = configuration.getOrElse("host", Protocol.DEFAULT_HOST)
+    	val port = configuration.getOrElse("port", Protocol.DEFAULT_PORT.toString).toInt
+    	val auth = configuration.getOrElse("auth", null)
+    	val dbNum = configuration.getOrElse("dbNum", Protocol.DEFAULT_DATABASE.toString).toInt
+    	val timeout = configuration.getOrElse("timeout", Protocol.DEFAULT_TIMEOUT.toString).toInt
+    	new RedisConnection(host, port, auth, dbNum, timeout)
+    })
+  }
   def getTablePartitions(
                           table: RedisTable, clearCachePeriod: Int, reloadPeriod: Int,
 //                          extra: Any): Array[SourceInfo] = {
@@ -85,27 +97,53 @@ class RedisStore
   }
 
   def add(rows: Iterator[RedisRow]): Unit = {
-//    sessionManager.start()
-    try {
-      rows.foreach { row => add(row) }
-    } finally {
-//      sessionManager.end()
-    }
+    // 1) generate datakey
+    val keyRowPair:Map[String, RedisRow] = rows.map{ row => 
+    val dataKey = KeyUtil.generateDataKey(row.table.id)
+    // should add partitionInfo
+//    val dataKey = KeyUtil.generateDataKey(row.table.id, partitionInfo)
+      (dataKey, row)
+    }.toMap
+    // 2) execute on pipeline on each node
+    // SRC := [RedisRelation]-RedisCluster(RedisConnection)
+    // ADDB :=  [RedisStore]-RedisCluster(RedisConnection)
+    KeyUtil.groupKeysByNode(redisCluster.hosts, keyRowPair.keysIterator).foreach{
+      case(node, datakeys) => {
+        val conn = node.connect
+        val pipeline = conn.pipelined
+        datakeys.foreach{
+          datakey => {
+            val row:RedisRow = keyRowPair(datakey)
+            row.columns.foreach {
+              column =>
+              pipeline.set(datakey+column._2, column._2)
+              }
+//    					pipeline.hmset(datakey, row.getValuesMap(row.schema.fieldNames).map(x => (x._1, x._2.toString)))
+    				}
+          }
+        pipeline.sync
+        conn.close
+        }
+     }
+//    try {
+//      rows.foreach { row => add(row) }
+//    } finally {
+//    }
   }
 
-  def add(
-           row: RedisRow
-         ): Unit = {
-         
+  def add(row: RedisRow): Unit = {
+    // 1) generate data key
+//    val key = KeyUtil.generateDataKey(row.table.id)
+    // 2) execute on pipeline
+//    key.toIterator
+    
 //    val sourceInfo = handler.rowIdOf(row)
 //    sessionManager.run { session: Session =>
 //      session.nvwrite(sourceInfo, mutableSeqAsJavaList(row.table.columnNames.map { columnName => row.columns(columnName) }))
 //    }
   }
 
-  def get(
-           key: String
-         ): Iterator[RedisRow] = {
+  def get(key: String): Iterator[RedisRow] = {
     throw new RuntimeException(s"Unsupported method on this mode")
   }
 

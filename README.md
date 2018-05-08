@@ -18,18 +18,21 @@ arg1 : sparkall, sqlall, spark, sql, compile
 When run spark-sql,
 
 ### CREATE
+Set "table" option to INT type.(MUST)
+Set "parition" option for partitioning specific column.(MUST)
+Set "AUTH" option if use redis requirepass (OPTIONAL)
 
 ```
 CREATE TABLE kv
 (key STRING, value INT)
 USING kr.ac.yonsei.delab.addb_srconnector
-OPTIONS (table "kv", AUTH "foobared", hi "bye");
+OPTIONS (host "127.0.0.1", port "7000", table "1", partitions "key", AUTH "foobared");
 ```
 
 ### INSERT
 
 ```
-INSERT OVERWRITE table kv SELECT t.* FROM (SELECT 'LJH', 3142) t;
+INSERT INTO table kv VALUES ('LJH', 3142, 'CWG', 1111);
 ```
 
 ### SELECT (cannot be implemented)

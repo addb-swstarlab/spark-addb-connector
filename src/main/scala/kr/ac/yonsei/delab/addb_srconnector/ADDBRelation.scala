@@ -6,7 +6,8 @@ import scala.collection.immutable.ListMap
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{DataFrame, SQLContext, Row}
 import org.apache.spark.sql.sources._
-import org.apache.spark.sql.types.{StructType, ByteType, ShortType, IntegerType, LongType, FloatType, DoubleType}
+import org.apache.spark.sql.types.{StructType, ByteType, ShortType, 
+                      IntegerType, LongType, FloatType, DoubleType}
 
 import redis.clients.addb_jedis.Protocol
 import kr.ac.yonsei.delab.addb_srconnector.util.Logging
@@ -46,7 +47,7 @@ case class ADDBRelation (parameters: Map[String,String],
   }
   
   def buildRedisTable: RedisTable = {
-    val tableName = configuration.get( TABLE_KEY).toString()
+    val tableID = configuration.get(TABLE_KEY).toInt
     val columns: ListMap[String, RedisColumn] = ListMap( schema.fields.map{ field=> // ListMap 타입
       ( field.name, new RedisColumn( field.name, field.dataType match { // column type 단순화. Column type은 RedisTable에 NumericType or StringType으로만 구분해놓음
         case _@ (ByteType | ShortType | IntegerType | LongType | FloatType | DoubleType) => NumericType
@@ -80,8 +81,8 @@ case class ADDBRelation (parameters: Map[String,String],
 //      new RedisIndex( columns( indexName ) , withName( indexTypeString ) )
 //    }
 //    logInfo( s"Index information: $indices" )
-    logInfo( s"Index do not be implemented yet.." )
-    RedisTable(tableName, columns.values.toArray, partitionColumnNames);
+    logInfo( s"Index is not implemented yet.." )
+    RedisTable(tableID, columns.values.toArray, partitionColumnNames);
   }
   
   // TableScan
@@ -112,7 +113,7 @@ case class ADDBRelation (parameters: Map[String,String],
     if (overwrite) {
       logInfo(s"Do not implement overwrite command. Thus, operate only append")
     }
-    // insert
+    // deal with RDD[Row]
     val rowRDD = data.rdd
     // make RedisTable
     val redisTable = buildRedisTable
@@ -120,21 +121,35 @@ case class ADDBRelation (parameters: Map[String,String],
     rowRDD.foreachPartition { partition => // rdd마다. 즉, Row를 배분받은 각 파티션 마다. partition:Iterator[Row]
       val redisConfig = getRedisConfig( configuration ) // get current ADDBRelation RedisConfig
       val redisStore = redisConfig.getRedisStore(); // ADDBRelationRedisConfig->RedisConfig->RedisStore
-      
       val columnsWithIndex = schema.fields.zipWithIndex // ( (field1:StructField, 0) , (field2, 1) , (field3, 2) ... )
       try {
-        redisStore.add( partition.map { row=> // add to redisStore. row:Row
+        val redisRow = partition.map{ row =>
           val columns = columnsWithIndex.map{ pair=>
             val columnValue = row.get(pair._2) // 기존의 row에서 index 위치를 활용하여 값을 가져온다.
-            if ( columnValue == null ) { // null 이면 null을 넣어주고
+            if ( columnValue == null ) { // set value null
               ( pair._1.name, null )
-            } else {                     // null 이 아니라면 해당하는 값을 String 형태로 넣어주자(columns 에)
+            } else {                     // set value:String
               ( pair._1.name, columnValue.toString() )
               }
-          }.toMap   // Map[colName:String, value:String]
-          logInfo( s"[R2Relation][insert]RDD redisStore.add! $columns" )
-          new RedisRow( redisTable, columns ) // row마다 RedisTable과 위에서 만든 columns:Map 으로 RedisRow를 또 만들어내고, 이를 redisStore에 추가하자. 
-        } )
+          }.toMap
+          RedisRow(redisTable, columns)
+          }
+        redisStore.add(redisRow)
+        
+        
+//        redisStore.add( partition.map { row=> // add to redisStore. row:Row
+//          val columns = columnsWithIndex.map{ pair=>
+//            val columnValue = row.get(pair._2) // 기존의 row에서 index 위치를 활용하여 값을 가져온다.
+//            if ( columnValue == null ) { // set value null
+//              ( pair._1.name, null )
+//            } else {                     // set value:String
+//              ( pair._1.name, columnValue.toString() )
+//              }
+//          }.toMap   // Map[colName:String, value:String]
+//          logInfo( s"[R2Relation][insert]RDD redisStore.add! $columns" )
+//          RedisRow( redisTable, columns ) // row마다 RedisTable과 위에서 만든 columns:Map 으로 RedisRow를 또 만들어내고, 이를 redisStore에 추가하자. 
+//        } )
+        
       } finally {
 //      	redisStore.sessionManager.end()
       }

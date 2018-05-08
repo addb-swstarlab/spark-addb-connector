@@ -60,7 +60,7 @@ case class RedisConnection (val host: String = Protocol.DEFAULT_HOST,
     */
   def connect(): Jedis = {
     RedisConnectionPool.connect(this)
-  }
+  } 
 }
 // Redis cluster node
 case class RedisNode(val redisConnection: RedisConnection,
@@ -76,6 +76,7 @@ case class RedisNode(val redisConnection: RedisConnection,
 
 object RedisConnectionPool {
   @transient private lazy val pools: ConcurrentHashMap[RedisConnection, JedisPool] = new ConcurrentHashMap[RedisConnection, JedisPool]()
+  // Get jedis resource from jedis pool
   def connect(redisConnection: RedisConnection): Jedis = {
     val pool = pools.getOrElseUpdate(redisConnection,
       {
@@ -89,8 +90,13 @@ object RedisConnectionPool {
 //        poolConfig.setMinEvictableIdleTimeMillis(60000)
 //        poolConfig.setTimeBetweenEvictionRunsMillis(30000)
 //        poolConfig.setNumTestsPerEvictionRun(-1)
-        new JedisPool(poolConfig, redisConnection.host, redisConnection.port, 
-            redisConnection.timeout, redisConnection.auth, redisConnection.dbNum)
+//        if (redisConnection.auth == "null") {
+//          new JedisPool(poolConfig, redisConnection.host, redisConnection.port, 
+//            redisConnection.timeout, null, redisConnection.dbNum)
+//        } else {
+          	new JedisPool(poolConfig, redisConnection.host, redisConnection.port, 
+        			redisConnection.timeout, redisConnection.auth, redisConnection.dbNum)
+//         }
       }
     )
     var sleepTime: Int = 4
@@ -110,4 +116,8 @@ object RedisConnectionPool {
     }
     conn
   }
+  // Return jedis to jedis pool
+//  def close(jedis: Jedis):Unit = {
+//    jedis.close()
+//  }
 }
