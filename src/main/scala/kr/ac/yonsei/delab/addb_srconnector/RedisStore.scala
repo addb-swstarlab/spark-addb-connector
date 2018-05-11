@@ -3,15 +3,28 @@ package kr.ac.yonsei.delab.addb_srconnector
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 
+import scala.collection.JavaConversions.mutableSeqAsJavaList
+import scala.collection.JavaConverters._
+
 import redis.clients.addb_jedis.Protocol
+import redis.clients.addb_jedis.util.CommandArgsObject
 
 import kr.ac.yonsei.delab.addb_srconnector.util.KeyUtil
+import kr.ac.yonsei.delab.addb_srconnector.util.PartitionUtil
+import kr.ac.yonsei.delab.addb_srconnector.util.Logging
 
 
 object ColumnType extends Enumeration {
   type ColumnType = Value
   val StringType = Value( "String" )
   val NumericType = Value( "Numeric" )
+}
+
+case class RedisRow( val table: RedisTable, val columns: Map[String, String])
+//  override val columns: Map[String, String])
+//  extends RedisRowBase(columns) {
+extends Serializable {
+	
 }
 
 //import ColumnType._
@@ -23,9 +36,39 @@ case class RedisTable (
 //  val indices: Array[RedisIndex],
     val partitionColumnNames: Array[String]) {
 //  val scoreName: String) {
-//	def buildTable():RedisTable = {
-//	  this
-//	}
+  
+  val columnCount = columns.size
+  val columnNameWithID = columns.map(_.name).zip(Stream from 1).toMap // from index 1
+  val partitionColumnID:Array[Int] = partitionColumnNames.map(columnName => 
+                                 columnNameWithID(columnName)).toArray
+//  val partitionInfo = PartitionUtil.getPartitionInfo(partitionColumnIndex)
+  
+  // get index column index&type
+//  val index:Array[Int] = 
+}
+/*
+ * For reducing overhead when build redis table, store RedisTable list
+ */
+object RedisTableList 
+  extends Logging {
+  var list = Map[Int, RedisTable]()
+  def insertTableList (tableID: Int, redisTable:RedisTable) {
+    list += (tableID -> redisTable)
+    		logInfo(s"Insert into RedisTableList")
+  }
+  
+  def checkList(tableID: Int):Boolean = {
+    if (list.size == 0) {
+    	 logInfo(s"RedisTableList is empty")
+    	 false
+    } else if (list.get(tableID) == None) {
+    	 logInfo(s"RedisTable is not in RedisTableList ")
+    	 false
+    } else {
+     	 logInfo(s"RedisTable is in RedisTableList ")
+      true
+    }
+  }
 }
 
 //class RedisRowBase(
@@ -33,12 +76,6 @@ case class RedisTable (
 //  extends Serializable {
 //}
 
-case class RedisRow( val table: RedisTable, val columns: Map[String, String])
-//  override val columns: Map[String, String])
-//  extends RedisRowBase(columns) {
-extends Serializable {
-	
-}
 
 class RedisStore (val redisConfig:RedisConfig)
   extends Configurable {
@@ -97,16 +134,23 @@ class RedisStore (val redisConfig:RedisConfig)
   }
 
   def add(rows: Iterator[RedisRow]): Unit = {
-    // 1) generate datakey
-    val keyRowPair:Map[String, RedisRow] = rows.map{ row => 
-    val dataKey = KeyUtil.generateDataKey(row.table.id)
-    // should add partitionInfo
-//    val dataKey = KeyUtil.generateDataKey(row.table.id, partitionInfo)
+    
+    // 0) Convert iterator to array for generating datakey
+    val rowForTableInfo = rows.toArray
+    
+    // 1) Generate datakey
+    val keyRowPair:Map[String, RedisRow] = rowForTableInfo.map{ row => 
+      // Generate partition:= (1) (index, name) -> (2) (index, value)
+      val partitionIndexWithName = row.table.partitionColumnID.zip(row.table.partitionColumnNames)
+      val partitionIndexWithValue = partitionIndexWithName.map(column => 
+                               (column._1, row.columns.get(column._2).get))
+      val dataKey = KeyUtil.generateDataKey(row.table.id, partitionIndexWithValue)
       (dataKey, row)
     }.toMap
-    // 2) execute on pipeline on each node
-    // SRC := [RedisRelation]-RedisCluster(RedisConnection)
-    // ADDB :=  [RedisStore]-RedisCluster(RedisConnection)
+    
+    // 2) Execute pipelined command in each node
+    //   From SRC := [RedisRelation]-RedisCluster(RedisConnection)
+    //   To ADDB :=  [RedisStore]-RedisCluster(RedisConnection)
     KeyUtil.groupKeysByNode(redisCluster.hosts, keyRowPair.keysIterator).foreach{
       case(node, datakeys) => {
         val conn = node.connect
@@ -114,21 +158,23 @@ class RedisStore (val redisConfig:RedisConfig)
         datakeys.foreach{
           datakey => {
             val row:RedisRow = keyRowPair(datakey)
-            row.columns.foreach {
-              column =>
-              pipeline.set(datakey+column._2, column._2)
-              }
-//    					pipeline.hmset(datakey, row.getValuesMap(row.schema.fieldNames).map(x => (x._1, x._2.toString)))
+            
+            // should convert from data:String to data:List<String>
+//            val data = row.columns.map(_._2).toArray.mkString(",")
+//            pipeline.set(datakey, data)
+            
+            val data = row.columns.map(_._2).toList.asJava
+            logInfo(s"PartitionInfo: "+PartitionUtil.getPartitionInfo(row.table.partitionColumnID))
+            // parameters: datakey, ColumnCount:String, partitionInfo, rowData
+            val commandArgsObject = new CommandArgsObject(datakey, row.table.columnCount.toString, 
+                 PartitionUtil.getPartitionInfo(row.table.partitionColumnID), data);
+            pipeline.fpwrite(commandArgsObject);
     				}
           }
         pipeline.sync
         conn.close
         }
      }
-//    try {
-//      rows.foreach { row => add(row) }
-//    } finally {
-//    }
   }
 
   def add(row: RedisRow): Unit = {

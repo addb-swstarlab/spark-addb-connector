@@ -56,7 +56,7 @@ class DefaultSource
     cols.foreach(x => println(x._1.toString() + " " + x._2))
     logInfo ( s"##[ADDB][printAll zipWithIndex]" )
 		*/    
-    val param:HashMap[String, Any] = HashMap(parameters.toSeq:_*)
+    val param:HashMap[String, String] = HashMap(parameters.toSeq:_*)
     val configuration = Configuration(param)
     
     checkOptions(configuration, schema)

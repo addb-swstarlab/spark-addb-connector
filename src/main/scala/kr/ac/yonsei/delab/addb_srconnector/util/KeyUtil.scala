@@ -14,16 +14,20 @@ object KeyUtil {
     buf.toString()
   }
   // 2) partition is implemented
-  def generateDataKey(tableID:Int, partition:String):String = {
+  def generateDataKey(tableID:Int, partitionColumnInfo:Array[(Int, String)]):String = {
     var buf:StringBuilder = new StringBuilder
     // tableInfo
     buf.append("D:{").append(tableID+":")
     // partitionInfo
-    if (partition != null && partition.length() > 0) {
+    if (partitionColumnInfo != null && partitionColumnInfo.size > 0) {
+      // make 1:3142  :  2:4124
+      // start partitionID from 1.
+      var partition = partitionColumnInfo.map(column => ((column._1)+":"+column._2).toString()) 
+                    .mkString(":")
       buf.append(partition)
     }
     buf.append("}")
-    buf.toString()
+    buf.toString
   }
   /**
     * @param nodes list of RedisNode
@@ -39,5 +43,17 @@ object KeyUtil {
     }
     keys.map(key => (getNode(key), key)).toArray.groupBy(_._1). // ???  (1, List(1, 2, 3)), 2 => List (4, 5, 6)
       map(x => (x._1, x._2.map(_._2))).toArray
+  }
+}
+object PartitionUtil {
+  def getPartitionInfo(partitionColumnIndex:Array[Int]):String = {
+    val buf:StringBuilder = new StringBuilder
+    val partitionColumnCount = partitionColumnIndex.size
+    buf.append(partitionColumnCount)
+    partitionColumnIndex.foreach { index => 
+      buf.append(":")
+      buf.append(index)
+     }
+    buf.toString
   }
 }

@@ -48,41 +48,54 @@ case class ADDBRelation (parameters: Map[String,String],
   
   def buildRedisTable: RedisTable = {
     val tableID = configuration.get(TABLE_KEY).toInt
-    val columns: ListMap[String, RedisColumn] = ListMap( schema.fields.map{ field=> // ListMap 타입
-      ( field.name, new RedisColumn( field.name, field.dataType match { // column type 단순화. Column type은 RedisTable에 NumericType or StringType으로만 구분해놓음
-        case _@ (ByteType | ShortType | IntegerType | LongType | FloatType | DoubleType) => NumericType
-        case _ => StringType
-    } ) ) }.toSeq:_* )
-    // ex) { col1 -> RedisColumn(col1, string) }
-//    logDebug( s"Columns: $columns" )
-    logInfo( s"[buildRedisTable] Columns: $columns" )
+    // check whether current table is in the RedisTableList
+    if (RedisTableList.checkList(tableID)) {
+      // return stored RedisTable
+      RedisTableList.list.get(tableID).get
+    }
+    else {
+    	def buildNewRedisTable: RedisTable = {
+    			val columns: ListMap[String, RedisColumn] = ListMap( schema.fields.map{ field=> // ListMap 타입
+    			( field.name, new RedisColumn( field.name, field.dataType match { // column type 단순화. Column type은 RedisTable에 NumericType or StringType으로만 구분해놓음
+    			case _@ (ByteType | ShortType | IntegerType | LongType | FloatType | DoubleType) => NumericType
+    			case _ => StringType
+    			} ) ) }.toSeq:_* )
+    					// ex) { col1 -> RedisColumn(col1, string) }
+    					//    logDebug( s"Columns: $columns" )
+    					logInfo( s"[buildRedisTable] Columns: $columns" )
 
-    // indexColumn, partitionColumn, scoreColumnName을 configuration으로 부터 가져옴
-    // score가 의미하는 것이 무엇인가?
-//    val indexColumnInformations = configuration.gets( INDEX_COLUMNS_KEY )
-    val partitionColumnNames = configuration.gets( PARTITION_COLUMN_KEY )
-//    val scoreColumnName = configuration.get( SCORE_COLUMN_KEY, null )
+    					// indexColumn, partitionColumn, scoreColumnName을 configuration으로 부터 가져옴
+    					// score가 의미하는 것이 무엇인가?
+    					//    val indexColumnInformations = configuration.gets( INDEX_COLUMNS_KEY )
+    					val partitionColumnNames = configuration.gets( PARTITION_COLUMN_KEY )
+    					//    val scoreColumnName = configuration.get( SCORE_COLUMN_KEY, null )
 
-    // redis Index information을 토대로 RedisIndex객체 생성
-    // ~~(##) 와 같은 형식에서
-    // indexName = ~~
-    // indexTypeString = ## (uppercase)
-    // ex)  testIndex(EQUALTYPE)
-//    val indices = indexColumnInformations.map{ info=>
-//      val typeStartIndex = info.indexOf( '(' )
-//      val typeEndIndex = info.indexOf( ')' )
-//      val ( indexName, indexTypeString ) = if ( 0 <= typeStartIndex && typeStartIndex < typeEndIndex ) {
-//        ( info.substring( 0, typeStartIndex ), info.substring( typeStartIndex + 1, typeEndIndex ).map(_.toUpper).trim() )
-//      } else {
-//        ( info, INDEX_TYPE_DEFAULT ) // INDEX_TYPE_DEFAULT = EQUAL
-//      }
-      // RedisColumn, IndexType(EQUAL|RANGE|PARTUK)
-      // columns(indexName) -> 해당 indexName을 갖는 column 찾아서 redisColumn객체 생성
-//      new RedisIndex( columns( indexName ) , withName( indexTypeString ) )
-//    }
-//    logInfo( s"Index information: $indices" )
-    logInfo( s"Index is not implemented yet.." )
-    RedisTable(tableID, columns.values.toArray, partitionColumnNames);
+    					// redis Index information을 토대로 RedisIndex객체 생성
+    					// ~~(##) 와 같은 형식에서
+    					// indexName = ~~
+    					// indexTypeString = ## (uppercase)
+    					// ex)  testIndex(EQUALTYPE)
+    					//    val indices = indexColumnInformations.map{ info=>
+    					//      val typeStartIndex = info.indexOf( '(' )
+    					//      val typeEndIndex = info.indexOf( ')' )
+    					//      val ( indexName, indexTypeString ) = if ( 0 <= typeStartIndex && typeStartIndex < typeEndIndex ) {
+    					//        ( info.substring( 0, typeStartIndex ), info.substring( typeStartIndex + 1, typeEndIndex ).map(_.toUpper).trim() )
+    					//      } else {
+    					//        ( info, INDEX_TYPE_DEFAULT ) // INDEX_TYPE_DEFAULT = EQUAL
+    					//      }
+    					// RedisColumn, IndexType(EQUAL|RANGE|PARTUK)
+    					// columns(indexName) -> 해당 indexName을 갖는 column 찾아서 redisColumn객체 생성
+    					//      new RedisIndex( columns( indexName ) , withName( indexTypeString ) )
+    					//    }
+    					//    logInfo( s"Index information: $indices" )
+    					logInfo( s"Index is not implemented yet.." )
+    					RedisTable(tableID, columns.values.toArray, partitionColumnNames);
+      }
+      // build new RedisTable and insert it into RedisTableList
+      val newRedisTable = buildNewRedisTable
+      RedisTableList.insertTableList(tableID, newRedisTable)
+      newRedisTable
+    }
   }
   
   // TableScan

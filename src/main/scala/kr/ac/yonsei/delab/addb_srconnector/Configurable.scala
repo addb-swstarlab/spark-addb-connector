@@ -14,7 +14,7 @@ trait Configurable
 }
 
 case class Configuration (
-    parameters:HashMap[String,Any])
+    parameters:HashMap[String,String])
   extends Serializable
   with Logging {
   // Since options are already checked, do not change to default value  
@@ -30,13 +30,14 @@ case class Configuration (
     }
   }
   def gets(key:String):Array[String] = {
-    parameters.map(_._2.toString()).toArray
+    parameters.get(key).toArray
+//    parameters.map(_._2.toString()).toArray
   }
 }
 
 object ConfigurationConstants {  
   val TABLE_KEY = "table"
   val INDICES_KEY = "indices"
-  val PARTITION_COLUMN_KEY = "partition"
+  val PARTITION_COLUMN_KEY = "partitions"
   
 }
