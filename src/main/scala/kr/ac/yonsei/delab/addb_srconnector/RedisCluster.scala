@@ -4,6 +4,10 @@ import scala.collection.JavaConversions._
 import redis.clients.addb_jedis.util.SafeEncoder
 import kr.ac.yonsei.delab.addb_srconnector.util.Logging
 
+/*
+ * RedisCluster class 
+ * From host ip, check related cluster nodes
+ */
 class RedisCluster(val host: RedisConnection) 
   extends Serializable
   with Logging {
@@ -20,6 +24,9 @@ class RedisCluster(val host: RedisConnection)
 		conn.close
 		res
   }
+  // get cluster nodes from host
+  // connect host and run clusterSlots command in redis
+  // then, return related node
 	private def getClusterNodes(redisConnection: RedisConnection): Array[RedisNode] = {
     val conn = redisConnection.connect()
     val res = conn.clusterSlots().flatMap {

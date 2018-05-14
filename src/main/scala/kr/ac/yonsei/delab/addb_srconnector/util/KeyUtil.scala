@@ -4,15 +4,18 @@ import scala.collection.mutable.StringBuilder
 import redis.clients.addb_jedis.util.JedisClusterCRC16
 import kr.ac.yonsei.delab.addb_srconnector.RedisNode
 
+/*
+ * generate full datakey :=  "D:{TableInfo:PartitionInfo}"
+ */
 object KeyUtil {
   // 1) partition is not implemented
   // When partition is implemented, this function will be deleted..
-  def generateDataKey(tableID:Int):String = {
-    var buf:StringBuilder = new StringBuilder
-    // tableInfo
-    buf.append("D:{").append(tableID+":").append("}")
-    buf.toString()
-  }
+//  def generateDataKey(tableID:Int):String = {
+//    var buf:StringBuilder = new StringBuilder
+//    // tableInfo
+//    buf.append("D:{").append(tableID+":").append("}")
+//    buf.toString()
+//  }
   // 2) partition is implemented
   def generateDataKey(tableID:Int, partitionColumnInfo:Array[(Int, String)]):String = {
     var buf:StringBuilder = new StringBuilder
@@ -46,6 +49,7 @@ object KeyUtil {
   }
 }
 object PartitionUtil {
+  // generate partitionInfo := partitionColumnCount:partitionColumnIndex1:Index2 ...  ex) 3:3:4:6
   def getPartitionInfo(partitionColumnIndex:Array[Int]):String = {
     val buf:StringBuilder = new StringBuilder
     val partitionColumnCount = partitionColumnIndex.size

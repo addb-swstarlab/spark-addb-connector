@@ -20,16 +20,32 @@ object ColumnType extends Enumeration {
   val NumericType = Value( "Numeric" )
 }
 
+/*
+ * RedisRow class
+ * 		represent table, column info associated with row
+ * table := redis table including this RedisRow
+ * columns := each columns information (column name -> value)
+ */
 case class RedisRow( val table: RedisTable, val columns: Map[String, String])
 //  override val columns: Map[String, String])
 //  extends RedisRowBase(columns) {
 extends Serializable {
 	
 }
-
-//import ColumnType._
+/*
+ * RedisColumn class
+ * 		represent each column
+ * name := column name
+ * columnType := column type(String | Numeric)
+ */
 case class RedisColumn(val name: String, val columnType: ColumnType.Value ) { }
 
+/*
+ * RedisTable class
+ *		include table information
+ * id := tableID from CREATE TABLE OPTIONS table
+ * columns := RedisColumn array
+ */
 case class RedisTable (
     val id: Int,
     val columns: Array[RedisColumn],
@@ -47,7 +63,7 @@ case class RedisTable (
 //  val index:Array[Int] = 
 }
 /*
- * For reducing overhead when build redis table, store RedisTable list
+ * For reducing overhead when build redis table, maintain RedisTable list
  */
 object RedisTableList 
   extends Logging {
@@ -76,11 +92,14 @@ object RedisTableList
 //  extends Serializable {
 //}
 
-
+/*
+ * RedisStore class
+ * 		run actual INSERT(add), SELECT(scan) statement from/to redis 
+ */
 class RedisStore (val redisConfig:RedisConfig)
   extends Configurable {
   
-  // For INSERT statement (add function) 
+  // Retain host's cluster node
   val redisCluster: RedisCluster = {
     new RedisCluster({
       val configuration = this.redisConfig.configuration
@@ -133,8 +152,11 @@ class RedisStore (val redisConfig:RedisConfig)
 //    }
   }
 
+  /*
+   * Add data to redis through jedis pipeline
+   * Process INSERT(fpwrite) command according each node
+   */
   def add(rows: Iterator[RedisRow]): Unit = {
-    
     // 0) Convert iterator to array for generating datakey
     val rowForTableInfo = rows.toArray
     
@@ -159,10 +181,7 @@ class RedisStore (val redisConfig:RedisConfig)
           datakey => {
             val row:RedisRow = keyRowPair(datakey)
             
-            // should convert from data:String to data:List<String>
-//            val data = row.columns.map(_._2).toArray.mkString(",")
-//            pipeline.set(datakey, data)
-            
+            // Convert from data:String to data:List<String> (compatible with Java List type)
             val data = row.columns.map(_._2).toList.asJava
             logInfo(s"PartitionInfo: "+PartitionUtil.getPartitionInfo(row.table.partitionColumnID))
             // parameters: datakey, ColumnCount:String, partitionInfo, rowData
@@ -177,17 +196,10 @@ class RedisStore (val redisConfig:RedisConfig)
      }
   }
 
-  def add(row: RedisRow): Unit = {
-    // 1) generate data key
-//    val key = KeyUtil.generateDataKey(row.table.id)
-    // 2) execute on pipeline
-//    key.toIterator
-    
-//    val sourceInfo = handler.rowIdOf(row)
-//    sessionManager.run { session: Session =>
-//      session.nvwrite(sourceInfo, mutableSeqAsJavaList(row.table.columnNames.map { columnName => row.columns(columnName) }))
-//    }
-  }
+  // Do not use each RedisRow parameter because of groupKeysByNode function
+//  def add(row: RedisRow): Unit = {
+//    
+//  }
 
   def get(key: String): Iterator[RedisRow] = {
     throw new RuntimeException(s"Unsupported method on this mode")

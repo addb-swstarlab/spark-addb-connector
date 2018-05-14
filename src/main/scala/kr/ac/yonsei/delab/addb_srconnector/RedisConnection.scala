@@ -116,8 +116,4 @@ object RedisConnectionPool {
     }
     conn
   }
-  // Return jedis to jedis pool
-//  def close(jedis: Jedis):Unit = {
-//    jedis.close()
-//  }
 }
