@@ -2,7 +2,12 @@ package kr.ac.yonsei.delab.addb_srconnector
 
 import kr.ac.yonsei.delab.addb_srconnector.util.Logging
 import scala.collection.immutable.HashMap
+import kr.ac.yonsei.delab.addb_srconnector.ConfigurationConstants.{TABLE_KEY, INDICES_KEY, PARTITION_COLUMN_KEY}
 
+/*
+ *  RedisStore, ADDBRelation is configurable
+ *  Configuration distinguish each RedisStore / each ADDBRelation
+ */
 trait Configurable 
   extends Logging{
   var configuration: Configuration = _
@@ -13,13 +18,16 @@ trait Configurable
   }
 }
 
+/*
+ * Configuration class
+ * parameters := From CREATE TABLE OPTIONS
+ */
 case class Configuration (
-    parameters:HashMap[String,Any])
+    parameters:HashMap[String,String])
   extends Serializable
   with Logging {
-  // Since options are already checked, do not change to default value  
+  // Since options are already checked in createRelation function, do not change to default value  
   def get(key:String): String = {
-//    parameters.getOrElse(name, defaultValue)
     parameters.get(key).get.toString
   }
   def getOrElse(key:String, defaultValue:String):String = {
@@ -29,14 +37,14 @@ case class Configuration (
       parameters.getOrElse(key, defaultValue).toString
     }
   }
-  def gets(key:String):Array[String] = {
-    parameters.map(_._2.toString()).toArray
-  }
+  // return string array
+//  def gets(key:String):Array[String] = {
+//    parameters.get(key).toArray
+//  }
 }
 
 object ConfigurationConstants {  
   val TABLE_KEY = "table"
   val INDICES_KEY = "indices"
-  val PARTITION_COLUMN_KEY = "partition"
-  
+  val PARTITION_COLUMN_KEY = "partitions"
 }

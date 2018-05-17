@@ -4,6 +4,9 @@ import scala.collection.mutable.StringBuilder
 import redis.clients.addb_jedis.util.JedisClusterCRC16
 import kr.ac.yonsei.delab.addb_srconnector.RedisNode
 
+/*
+ * generate full datakey :=  "D:{TableInfo:PartitionInfo}"
+ */
 object KeyUtil {
 
   def makeSourceString(host:String, port: Int):String = {
@@ -43,12 +46,12 @@ object KeyUtil {
     buf.toString()
   }
   // 2) partition is implemented
-  def generateDataKey(tableID:Int, partition:String):Array[String] = {
-    var buf:StringBuilder = new StringBuilder
+
+  def generateDataKey(tableID: Int, partition: String): Array[String] = {
+    var buf: StringBuilder = new StringBuilder
     // tableInfo
-    buf.append("D:{").append(tableID+":")
-    // partitionInfo
-    if (partition != null && partition.length() > 0) {
+    buf.append("D:{").append(tableID + ":")
+    if (partition != null && partition.length() > 0 ) {
       buf.append(partition)
     }
     buf.append("}").append(":G:1");
@@ -57,6 +60,22 @@ object KeyUtil {
     bu.append("D:{").append(tableID+":").append(partition).append("}:G:2")
     val ret = Array(buf.toString(), bu.toString())
     ret
+  }
+
+  def generateDataKey(tableID:Int, partitionColumnInfo:Array[(Int, String)]):String = {
+    var buf:StringBuilder = new StringBuilder
+    // tableInfo
+    buf.append("D:{").append(tableID+":")
+    // partitionInfo
+    if (partitionColumnInfo != null && partitionColumnInfo.size > 0) {
+      // make 1:3142  :  2:4124
+      // start partitionID from 1.
+      var partition = partitionColumnInfo.map(column => ((column._1)+":"+column._2).toString()) 
+                    .mkString(":")
+      buf.append(partition)
+    }
+    buf.append("}")
+    buf.toString
   }
   /**
     * @param nodes list of RedisNode
@@ -92,4 +111,18 @@ object KeyUtil {
     nodes.filter(node => { node.startSlot <= slot && node.endSlot >= slot }).filter(_.idx == 0)(0)
   }
   
+}
+
+object PartitionUtil {
+  // generate partitionInfo := partitionColumnCount:partitionColumnIndex1:Index2 ...  ex) 3:3:4:6
+  def getPartitionInfo(partitionColumnIndex:Array[Int]):String = {
+    val buf:StringBuilder = new StringBuilder
+    val partitionColumnCount = partitionColumnIndex.size
+    buf.append(partitionColumnCount)
+    partitionColumnIndex.foreach { index => 
+      buf.append(":")
+      buf.append(index)
+     }
+    buf.toString
+  }
 }
