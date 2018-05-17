@@ -3,6 +3,7 @@ package kr.ac.yonsei.delab.addb_srconnector
 import scala.collection.JavaConversions._
 import scala.collection.immutable.ListMap
 
+
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{DataFrame, SQLContext, Row}
 import org.apache.spark.sql.sources._
@@ -13,14 +14,15 @@ import redis.clients.addb_jedis.Protocol
 import kr.ac.yonsei.delab.addb_srconnector.util.Logging
 import kr.ac.yonsei.delab.addb_srconnector.ColumnType.{NumericType, StringType}
 import kr.ac.yonsei.delab.addb_srconnector.ConfigurationConstants.{TABLE_KEY, INDICES_KEY, PARTITION_COLUMN_KEY}
+import kr.ac.yonsei.delab.addb_srconnector.rdd._
 
 case class ADDBRelation (parameters: Map[String,String], 
                     userSchema: StructType) 
                    (@transient val sqlContext: SQLContext)
   extends BaseRelation 
-//  with TableScan
-//  with PrunedScan
-//  with PrunedFilteredScan
+  with TableScan
+  with PrunedScan
+  with PrunedFilteredScan
   with Configurable
   with InsertableRelation
   with Logging {
@@ -84,25 +86,36 @@ case class ADDBRelation (parameters: Map[String,String],
     logInfo( s"Index is not implemented yet.." )
     RedisTable(tableID, columns.values.toArray, partitionColumnNames);
   }
-  
+
+  //  // TableScan
+  ////  override def buildScan: RDD[Row] = {
+  //  def buildScan: Unit = {
+  //    logInfo(s"##[ADDB][ADDBRelation-(buildScan)] Command occurs")
+  ////    logTrace(s"ADDBRelation-buildScan Command occurs")
+  //    parameters.foreach(p => println("Parameter key=" + p._1 + ", value=" + p._2))
+  //
+  //  }
+
   // TableScan
-//  override def buildScan: RDD[Row] = {
-  def buildScan: Unit = {
-    logInfo(s"##[ADDB][ADDBRelation-(buildScan)] Command occurs")
-//    logTrace(s"ADDBRelation-buildScan Command occurs")
-    parameters.foreach(p => println("Parameter key=" + p._1 + ", value=" + p._2))
-    
+  override def buildScan: RDD[Row] = {
+    logInfo(s"buildScan: tableScan")
+    buildScan(userSchema.fields.map( field => field.name ) )
   }
 
   // PrunedScan
-//  override def buildScan(requiredColumns: Array[String]): RDD[Row] = {
-//    
-//  }
+  override def buildScan(requiredColumns: Array[String]): RDD[Row] = {
+    logInfo(s"buildScan: prunedScan")
+    buildScan( requiredColumns, Array())
+  }
 
   // PrunedFilteredScan
-//  override def buildScan(requiredColumns: Array[String], filters: Array[Filter]): RDD[Row] = {
-//    
-//  }
+  override def buildScan(requiredColumns: Array[String], filters: Array[Filter]): RDD[Row] = {
+    logInfo(s"buildScan: prunedFilterScan")
+    val redisConfig = getRedisConfig( configuration )
+    val redisTable = buildRedisTable
+    val rdd = new ADDBRDD(sqlContext.sparkContext, redisConfig, redisTable, requiredColumns, filters)
+    new RedisRDDAdaptor(rdd, requiredColumns.map{ columnName=> schema(columnName)}, filters, schema)
+  }
   
   // InsertableRelation
   override def insert(data: DataFrame, overwrite: Boolean): Unit = {
