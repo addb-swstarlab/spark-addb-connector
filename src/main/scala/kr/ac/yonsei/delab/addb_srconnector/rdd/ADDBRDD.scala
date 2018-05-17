@@ -21,11 +21,10 @@ class ADDBRDD (
     val requiredColumns: Array[String],
     val filter: Array[Filter]
     ) extends RDD[RedisRow] (sc, Seq.empty)
-   // )  extends RDD[RedisRow] (sc, Seq.empty)
   {
   
   override protected def getPreferredLocations(split: Partition): Seq[String] = {
-    logInfo( s"[WONKI] : getPreferredLocations called")
+    logInfo( s"[WONKI] : getPreferredLocations called ${split.asInstanceOf[RedisPartition].location}")
     Seq(split.asInstanceOf[RedisPartition].location)
   }
   
@@ -47,7 +46,6 @@ class ADDBRDD (
   }
   
   override def compute(split: Partition, context: TaskContext) : Iterator[RedisRow] = {
-    //Iterator[Row] = {
     logInfo( s"[WONKI] : compute called")
     val partition = split.asInstanceOf[RedisPartition]
     val redisStore = redisConfig.getRedisStore()
@@ -61,8 +59,6 @@ class RedisRDDAdaptor(
   val filters: Array[Filter],
   val schema: org.apache.spark.sql.types.StructType
 ) extends RDD[Row]( prev ) {
-  //with Logging {
-  //  val metricLogger = LoggerFactory.getLogger( "org.skt.spark.r2.metric.row.fetch" )
 
   def castToTarget(value: String, dataType: DataType) = {
     dataType match {
@@ -72,26 +68,20 @@ class RedisRDDAdaptor(
       case _ => value.toString
     }
   }
-  
+
   override def getPartitions: Array[Partition] = prev.partitions
 
   override def compute(split: Partition, context: TaskContext): Iterator[Row] = {
     prev.compute(split, context).map {
       redisRow =>
-        logInfo(s"[WONKI] hochul")
         val columns: Array[Any] = requiredColumns.map { column =>
-          redisRow.columns.foreach{x => logInfo(s"[wonki] : column1 : ${x._1.getClass} , ${x._2.getClass}")
-              logInfo(s"[wonki] : column2 : " + redisRow.columns.get(x._1).get )
-          }
-          
           val value = redisRow.columns.getOrElse(column.name, null)
-//          val value = redisRow.columns.get(column.name).get
           logInfo(s"[WONKI] : compute : $value  : $column.name  $column.dataType")
           castToTarget(value, column.dataType)
         }
         val row = Row.fromSeq(columns.toSeq)
         row
     }
-    }
+  }
 }
 

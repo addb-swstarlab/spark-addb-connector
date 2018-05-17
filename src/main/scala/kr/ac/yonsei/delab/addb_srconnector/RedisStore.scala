@@ -129,13 +129,7 @@ class RedisStore (val redisConfig:RedisConfig)
     logInfo( s"[WONKI] : getTablePartitions called")
     val metaKey =KeyUtil.generateKeyForMeta(table.id)
     logInfo( s"[WONKI] : metaKey: $metaKey" )
-//    val targetNode = KeyUtil.getNodeForKey(redisCluster.hosts, metaKey)
-//    logInfo( s"[WONKI] : targetNode: $targetNode" )
-//    val conn = targetNode.connect()
-//
-//    val ret = conn.getMeta(metaKey)
-//    logInfo( s"[WONKI] : ret: $ret" )
-//    conn.close()
+
     val ret_scala : ArrayBuffer[String] = ArrayBuffer[String]()    
     redisCluster.hosts.foreach{
         x =>
@@ -146,13 +140,6 @@ class RedisStore (val redisConfig:RedisConfig)
         conn.close()      
     }
         
-//        
-//    val setIter = ret.iterator()
-//    val ret_scala : ArrayBuffer[String] = ArrayBuffer[String]()
-//
-//    while ( setIter.hasNext() ) {
-//      ret_scala+=KeyUtil.getPartitionFromMeta(setIter.next())
-//    }
     logInfo( s"[WONKI] : ret_scala: $ret_scala" )
 
     /* id - column cnt - partition */
@@ -234,31 +221,29 @@ class RedisStore (val redisConfig:RedisConfig)
     table: RedisTable,
     location: String,
     partitions: Array[String], //partition key
-    prunedColumns: Array[String]) : Iterator[RedisRow] = {
+    prunedColumns: Array[String]): Iterator[RedisRow] = {
 
     val columnIndex = prunedColumns.map { columnName =>
-      ""+ (table.columns.map(_.name).indexOf(columnName) + 1)
+      "" + (table.columns.map(_.name).indexOf(columnName) + 1)
     }
-    
-    //val keys : Array[String] = columnIndex.toArray
-    val keys = Array("col1","col2","col3","col1","col2","col3")
 
-    
+    //val keys : Array[String] = columnIndex.toArray
+    //val keys = Array("col1","col2","col3","col1","col2","col3")
+
     val host = KeyUtil.returnHost(location)
     val port = KeyUtil.returnPort(location)
 
-    val conn = new RedisConnection("127.0.0.1", 6379, redisCluster.host.auth, 
-        					redisCluster.host.dbNum, redisCluster.host.timeout).connect()
+    val conn = new RedisConnection("127.0.0.1", 6379, redisCluster.host.auth,
+      redisCluster.host.dbNum, redisCluster.host.timeout).connect()
     val pipeline = conn.pipelined()
-    
-    
+
     /* TO DO , Different IP is not enabled */
-    partitions.foreach{
+    partitions.foreach {
       partition =>
-          val keys = KeyUtil.generateDataKey(table.id, partition)
-        keys.foreach{
+        val keys = KeyUtil.generateDataKey(table.id, partition)
+        keys.foreach {
           x =>
-             // TO DO, prunedCoulumns need to be changed columnIndex when nvscan is implemented
+            // TO DO, prunedCoulumns need to be changed columnIndex when nvscan is implemented
             prunedColumns.map {
               column =>
                 //KeyUtil.generateDataKey(table.id, partition)
@@ -266,10 +251,13 @@ class RedisStore (val redisConfig:RedisConfig)
             }
         }
     }
-    val res = keys.zip(pipeline.syncAndReturnAll().map(_.asInstanceOf[ArrayList[String]].get(0)))
 
-   val numRow = keys.length / prunedColumns.length
-   conn.close()
+    val values = pipeline.syncAndReturnAll().map(_.asInstanceOf[ArrayList[String]].get(0))
+    val numRow = values.length / prunedColumns.length
+    val columnList = Stream.continually(prunedColumns).take(2).flatten.toArray
+    val res = columnList.zip(values)
+
+    conn.close()
 
     var totalRow = 0
 
