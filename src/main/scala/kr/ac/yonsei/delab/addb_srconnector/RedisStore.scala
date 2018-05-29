@@ -228,7 +228,6 @@ class RedisStore (val redisConfig:RedisConfig)
     }
 
     //val keys : Array[String] = columnIndex.toArray
-    //val keys = Array("col1","col2","col3","col1","col2","col3")
 
     val host = KeyUtil.returnHost(location)
     val port = KeyUtil.returnPort(location)
@@ -254,7 +253,11 @@ class RedisStore (val redisConfig:RedisConfig)
 
     val values = pipeline.syncAndReturnAll().map(_.asInstanceOf[ArrayList[String]].get(0))
     val numRow = values.length / prunedColumns.length
-    val columnList = Stream.continually(prunedColumns).take(2).flatten.toArray
+    println("value length = " + values.length)
+    println("pruned length = " + prunedColumns.length)
+    println("numRow = " + numRow)
+    val columnList = Stream.continually(prunedColumns).take(numRow).flatten.toArray
+    columnList.foreach( x => logInfo(s"columnList $x"))
     val res = columnList.zip(values)
 
     conn.close()

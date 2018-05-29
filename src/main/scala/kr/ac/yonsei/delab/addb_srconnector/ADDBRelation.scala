@@ -112,6 +112,7 @@ case class ADDBRelation (parameters: Map[String,String],
   override def buildScan(requiredColumns: Array[String], filters: Array[Filter]): RDD[Row] = {
     logInfo(s"buildScan: prunedFilterScan")
     requiredColumns.foreach(x => logInfo(s"requiredColumns : $x"))
+    logInfo(s"filter size : ${filters.size}")
     filters.foreach(x => logInfo(s"filters : $x"))
     val redisConfig = getRedisConfig( configuration )
     val redisTable = buildRedisTable
