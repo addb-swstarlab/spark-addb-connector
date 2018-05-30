@@ -31,7 +31,7 @@ class ADDBRDD (
   override protected def getPartitions: Array[Partition] = {
     logInfo( s"[WONKI] : getPartitions called")
     val redisStore = redisConfig.getRedisStore()
-    val sourceinfos = redisStore.getTablePartitions(redisTable)
+    val sourceinfos = redisStore.getTablePartitions(redisTable, filter)
     var i = 0
     sourceinfos.map { mem =>
       val loc = mem._1

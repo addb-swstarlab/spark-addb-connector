@@ -2,11 +2,13 @@ package kr.ac.yonsei.delab.addb_srconnector
 
 import scala.collection.JavaConversions._
 import scala.collection.immutable.ListMap
+import scala.collection.mutable.Stack
 
 
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{DataFrame, SQLContext, Row}
 import org.apache.spark.sql.sources._
+import org.apache.spark.sql.sources.Filter
 import org.apache.spark.sql.types.{StructType, ByteType, ShortType, 
                       IntegerType, LongType, FloatType, DoubleType}
 
@@ -114,12 +116,13 @@ case class ADDBRelation (parameters: Map[String,String],
     requiredColumns.foreach(x => logInfo(s"requiredColumns : $x"))
     logInfo(s"filter size : ${filters.size}")
     filters.foreach(x => logInfo(s"filters : $x"))
+
     val redisConfig = getRedisConfig( configuration )
     val redisTable = buildRedisTable
     val rdd = new ADDBRDD(sqlContext.sparkContext, redisConfig, redisTable, requiredColumns, filters)
     new RedisRDDAdaptor(rdd, requiredColumns.map{ columnName=> schema(columnName)}, filters, schema)
   }
-  
+   
   // InsertableRelation
   override def insert(data: DataFrame, overwrite: Boolean): Unit = {
     logInfo(s"##[ADDB][ADDBRelation-(insert)] Command occurs")

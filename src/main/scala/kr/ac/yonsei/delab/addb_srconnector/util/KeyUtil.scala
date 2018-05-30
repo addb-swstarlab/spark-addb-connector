@@ -3,6 +3,8 @@ package kr.ac.yonsei.delab.addb_srconnector.util
 import scala.collection.mutable.StringBuilder
 import redis.clients.addb_jedis.util.JedisClusterCRC16
 import kr.ac.yonsei.delab.addb_srconnector.RedisNode
+import org.apache.spark.sql.sources._
+import scala.collection.mutable.Stack
 
 /*
  * generate full datakey :=  "D:{TableInfo:PartitionInfo}"
@@ -124,5 +126,78 @@ object PartitionUtil {
       buf.append(index)
      }
     buf.toString
+  }
+}
+
+object FilterUtil { 
+    def makeFilterString(f: Filter, stack: Stack[String]) : Unit = {
+    f match {
+      case Or(_,_) =>  { 
+        stack.push("Or:")
+        makeFilterString(f.asInstanceOf[Or].left, stack)
+        makeFilterString(f.asInstanceOf[Or].right, stack)
+      }
+      case And(_,_) =>  {
+        stack.push("And:")
+        makeFilterString(f.asInstanceOf[And].left, stack)
+        makeFilterString(f.asInstanceOf[And].right, stack)
+      }
+      
+      case EqualTo(_,_) => {
+        stack.push("EqaulTo:")
+        stack.push(f.asInstanceOf[EqualTo].attribute)
+        stack.push(f.asInstanceOf[EqualTo].value.toString())
+      }
+      
+      case GreaterThan(_, _) => { 
+        stack.push("GreaterThan:")
+        stack.push(f.asInstanceOf[GreaterThan].attribute)
+        stack.push(f.asInstanceOf[GreaterThan].value.toString())
+      }
+      
+      case GreaterThanOrEqual(_, _) => {
+        stack.push("GreaterThanOrEqual:")
+        stack.push(f.asInstanceOf[GreaterThanOrEqual].attribute)
+        stack.push(f.asInstanceOf[GreaterThanOrEqual].value.toString())
+      }
+      case LessThan(_, _) => { 
+        stack.push("LessThan:")
+        stack.push(f.asInstanceOf[LessThan].attribute)
+        stack.push(f.asInstanceOf[LessThan].value.toString())
+      }
+      case LessThanOrEqual(_, _) => {
+        stack.push("LessThanOrEqual:")
+        stack.push(f.asInstanceOf[LessThanOrEqual].attribute)
+        stack.push(f.asInstanceOf[LessThanOrEqual].value.toString())
+      }
+      case In(_, _) => {
+        stack.push("In:")
+        stack.push(f.asInstanceOf[In].attribute)
+        stack.push(f.asInstanceOf[In].values.toString())
+      }
+      case IsNull(_)=> {
+        stack.push("IsNull:")
+        stack.push(f.asInstanceOf[IsNull].attribute)
+       }
+      case IsNotNull(_) => {
+        stack.push("IsNotNull:")
+        stack.push(f.asInstanceOf[IsNotNull].attribute)
+       }
+      case StringStartsWith(_, _) => {
+        stack.push("StringStartsWith:")
+        stack.push(f.asInstanceOf[StringStartsWith].attribute)
+        stack.push(f.asInstanceOf[StringStartsWith].value)
+      }
+      case StringEndsWith(_, _) => {
+        stack.push("StringEndsWith:")
+        stack.push(f.asInstanceOf[StringEndsWith].attribute)
+        stack.push(f.asInstanceOf[StringEndsWith].value)
+      }
+      case StringContains(_, _) => {
+        stack.push("StringContains:")
+        stack.push(f.asInstanceOf[StringContains].attribute)
+        stack.push(f.asInstanceOf[StringContains].value)
+      }
+    }
   }
 }

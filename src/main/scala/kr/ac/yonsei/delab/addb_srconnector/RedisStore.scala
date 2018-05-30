@@ -2,9 +2,11 @@ package kr.ac.yonsei.delab.addb_srconnector
 
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
+import org.apache.spark.sql.sources._
 
 import scala.collection.JavaConversions.mutableSeqAsJavaList
 import scala.collection.JavaConverters._
+import scala.collection.mutable.Stack
 
 import redis.clients.addb_jedis.Protocol
 import redis.clients.addb_jedis.util.CommandArgsObject
@@ -17,6 +19,7 @@ import scala.collection.JavaConverters._
 import org.apache.spark.sql.types._
 import java.util.ArrayList
 import kr.ac.yonsei.delab.addb_srconnector.util.PartitionUtil
+import kr.ac.yonsei.delab.addb_srconnector.util.FilterUtil
 import kr.ac.yonsei.delab.addb_srconnector.util.Logging
 
 
@@ -125,10 +128,22 @@ class RedisStore (val redisConfig:RedisConfig)
     	new RedisConnection(host, port, auth, dbNum, timeout)
     })
   }
-  def getTablePartitions(table: RedisTable ) : Array[(String, Array[String])] = {
+  
+  def getTablePartitions(table: RedisTable, filter: Array[Filter]) : Array[(String, Array[String])] = {
     logInfo( s"[WONKI] : getTablePartitions called")
     val metaKey =KeyUtil.generateKeyForMeta(table.id)
     logInfo( s"[WONKI] : metaKey: $metaKey" )
+
+    var retbuf = new StringBuilder
+    filter.foreach { x =>
+      var stack = new Stack[String]
+      FilterUtil.makeFilterString(x, stack)
+      while (!stack.isEmpty) {
+        retbuf.append(stack.pop())
+      }
+      retbuf.append("$")
+    }
+    logInfo(s"new String for Filter = " + retbuf.toString())
 
     val ret_scala : ArrayBuffer[String] = ArrayBuffer[String]()    
     redisCluster.hosts.foreach{
