@@ -31,20 +31,22 @@ class ADDBRDD (
   override protected def getPartitions: Array[Partition] = {
     logInfo( s"[WONKI] : getPartitions called")
     val redisStore = redisConfig.getRedisStore()
-    val sourceinfos = redisStore.getTablePartitions(redisTable, filter)
+    val sourceinfos = redisStore.getTablePartitions(redisTable, filter) // get partition key
     var i = 0
     sourceinfos.map { mem =>
       val loc = mem._1
-      logInfo( s"[WONKI] : getPartitions mem 1 : $mem._1")
+      logInfo( s"[WONKI] : getPartitions mem 1 : ${mem._1}")
       val sources : Array[String] = mem._2
-      logInfo( s"[WONKI] : getPartitions mem 2 : $mem._2")
+      logInfo( s"[WONKI] : getPartitions mem 2 : ${mem._2}")
       val partition = new RedisPartition(i, redisConfig, loc, sources);
       i += 1
       partition
-    }.toArray
-    
+    }.toArray // (RedisPartition1 , RedisPartition2, RedisPartition3)
+    // Need to balance (partition-node)
   }
   
+  // Each RedisPartition from getPartitions is adapted to compute()
+  // Thus, scan is called by each RedisPartitions
   override def compute(split: Partition, context: TaskContext) : Iterator[RedisRow] = {
     logInfo( s"[WONKI] : compute called")
     val partition = split.asInstanceOf[RedisPartition]
@@ -53,6 +55,7 @@ class ADDBRDD (
   }  
 }
 
+// Convert RDD[RedisRow] to RDD[Row] (DataFrame)
 class RedisRDDAdaptor(
   val prev: RDD[RedisRow],
   val requiredColumns: Array[StructField],
@@ -72,7 +75,7 @@ class RedisRDDAdaptor(
   override def getPartitions: Array[Partition] = prev.partitions
 
   override def compute(split: Partition, context: TaskContext): Iterator[Row] = {
-    prev.compute(split, context).map {
+    prev.compute(split, context).map {  // call ADDBRDD.compute
       redisRow =>
         val columns: Array[Any] = requiredColumns.map { column =>
           val value = redisRow.columns.getOrElse(column.name, null)
