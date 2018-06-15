@@ -1,24 +1,22 @@
 package kr.ac.yonsei.delab.addb_srconnector
 
+import java.util.HashSet
+import java.util.ArrayList
+
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.sources._
+import org.apache.spark.sql.types._
 
-import scala.collection.JavaConversions.mutableSeqAsJavaList
+import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
-import scala.collection.mutable.Stack
+import scala.collection.mutable.{Stack, ArrayBuffer}
 
 import redis.clients.addb_jedis.Protocol
 import redis.clients.addb_jedis.util.CommandArgsObject
 
-import scala.collection.mutable.ArrayBuffer
 import kr.ac.yonsei.delab.addb_srconnector.util.KeyUtil
-import java.util.HashSet
-import scala.collection.JavaConversions._
-import scala.collection.JavaConverters._
-import org.apache.spark.sql.types._
-import java.util.ArrayList
-import kr.ac.yonsei.delab.addb_srconnector.util.FilterUtil
+import kr.ac.yonsei.delab.addb_srconnector.util.Filters
 import kr.ac.yonsei.delab.addb_srconnector.util.Logging
 
 
@@ -136,7 +134,7 @@ class RedisStore (val redisConfig:RedisConfig)
     var retbuf = new StringBuilder
     filter.foreach { x =>
       var stack = new Stack[String]
-      FilterUtil.makeFilterString(x, stack)
+      Filters.makeFilterString(x, stack)
       while (!stack.isEmpty) {
         retbuf.append(stack.pop())
       }
@@ -203,8 +201,8 @@ class RedisStore (val redisConfig:RedisConfig)
             logInfo(s"PartitionInfo: "+ partitionInfo)
             // parameters: datakey, ColumnCount:String, partitionInfo, rowData
             val commandArgsObject = new CommandArgsObject(datakey, row.table.columnCount.toString, 
-                 partitionInfo, data);
-            pipeline.fpwrite(commandArgsObject);
+                 partitionInfo, data)
+            pipeline.fpwrite(commandArgsObject)
     				}
           }
         pipeline.sync
@@ -237,7 +235,7 @@ class RedisStore (val redisConfig:RedisConfig)
   def scan(
     table: RedisTable,
     location: String,
-    partitions: Array[String], //partition key
+    datakeys: Array[String], // datakeys including partition key
     prunedColumns: Array[String]): Iterator[RedisRow] = {
 
     val columnIndex = prunedColumns.map { columnName =>
@@ -255,23 +253,30 @@ class RedisStore (val redisConfig:RedisConfig)
     val pipeline = conn.pipelined()
 
     /* TO DO , Different IP is not enabled */
-    partitions.foreach {
-      partition =>
-//        val keys = KeyUtil.generateDataKey(table.id, partition)
-//        keys.foreach {
-//          x =>
-            logInfo( s"[WONKI] : key in scan = $partition | port = $port")
-            // TO DO, prunedCoulumns need to be changed columnIndex when nvscan is implemented,
-            // because Redis do not recognize columnName
-            prunedColumns.map {
-              column =>
-                logInfo( s"column : $column")
-                //KeyUtil.generateDataKey(table.id, partition)
-                pipeline.hmget(partition, column)
-//            }
-        }
+    datakeys.foreach {
+      datakey =>
+      logInfo( s"[WONKI] : key in scan = $datakey | port = $port")
+      // TO DO, prunedCoulumns need to be changed columnIndex when nvscan is implemented,
+      // because Redis do not recognize columnName
+      prunedColumns.map {
+    	  column =>
+    	  logInfo( s"column : $column")
+       }
+      val commandArgsObject = new CommandArgsObject(datakey, "1,2,3,4")
+    	 pipeline.fpscan(commandArgsObject)
     }
-    val values = pipeline.syncAndReturnAll().map(_.asInstanceOf[ArrayList[String]].get(0))
+    // For getting String data, transform original(List[Object]) data
+    // List[Object] -> List[ArrayList[String]] -> Buffer[ArrayList[String].get(i)].get(0) -> String
+    val values = {
+      val buffer : ArrayBuffer[String] = ArrayBuffer[String]()
+      val fpscanResult = pipeline.syncAndReturnAll.map(_.asInstanceOf[ArrayList[String]])
+      for {
+        i <- 0 until prunedColumns.size
+      } {
+    	  buffer += fpscanResult.map(arrayList => arrayList.get(i)).apply(0)
+      }
+      buffer
+    }
     values.foreach { x => logInfo(s"values: $x") }
     val numRow = values.length / prunedColumns.length
     println("value length = " + values.length)
