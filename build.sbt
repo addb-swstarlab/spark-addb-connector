@@ -6,10 +6,11 @@ scalaVersion := "2.11.8"
 
 // SBT can search local Maven repo
 //resolvers += "Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository"
+resolvers += "Atlassian Releases" at "https://maven.atlassian.com/public/"
 resolvers += "Local Maven Repository" at Path.userHome.asFile.toURI.toURL + ".m2/repository"
 
 // jedis dependency
-libraryDependencies += "redis.clients" % "addb-jedis" % "0.0.2"
+libraryDependencies += "kr.ac.yonsei.delab" % "addb-jedis" % "0.0.2"
 // Spark dependencies
 libraryDependencies ++= Seq (
 	"org.apache.spark" %% "spark-sql" % "2.0.2",

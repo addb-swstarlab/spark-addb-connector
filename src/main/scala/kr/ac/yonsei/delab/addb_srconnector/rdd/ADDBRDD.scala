@@ -37,6 +37,7 @@ class ADDBRDD (
       val loc = mem._1
       logInfo( s"[WONKI] : getPartitions mem 1 : ${mem._1}")
       val sources : Array[String] = mem._2
+      sources.foreach { x => logInfo(s"RedisPartition-Partition : $x") }
       logInfo( s"[WONKI] : getPartitions mem 2 : ${mem._2}")
       val partition = new RedisPartition(i, redisConfig, loc, sources);
       i += 1
@@ -50,6 +51,7 @@ class ADDBRDD (
   override def compute(split: Partition, context: TaskContext) : Iterator[RedisRow] = {
     logInfo( s"[WONKI] : compute called")
     val partition = split.asInstanceOf[RedisPartition]
+    logInfo( s"[WONKI] : partition : $partition")
     val redisStore = redisConfig.getRedisStore()
     redisStore.scan(redisTable, partition.location, partition.partition, requiredColumns)
   }  

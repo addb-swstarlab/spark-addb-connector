@@ -63,9 +63,13 @@
   	</dependency>
 -->
   	<dependency>
-  		<groupId>redis.clients</groupId>
+  		<groupId>kr.ac.yonsei.delab</groupId>
   		<artifactId>addb-jedis</artifactId>
   		<version>0.0.2</version>
+<!--
+		<scope>system</scope>
+		<systemPath>${basedir}/../addb-jedis/target/addb-jedis-0.0.2.jar</systemPath>
+-->
   	</dependency>
   </dependencies>
   <build>

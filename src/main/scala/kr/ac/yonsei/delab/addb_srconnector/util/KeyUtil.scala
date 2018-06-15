@@ -1,10 +1,12 @@
 package kr.ac.yonsei.delab.addb_srconnector.util
 
-import scala.collection.mutable.StringBuilder
+import scala.collection.mutable.{StringBuilder, ArrayBuffer}
 import redis.clients.addb_jedis.util.JedisClusterCRC16
 import kr.ac.yonsei.delab.addb_srconnector.RedisNode
 import org.apache.spark.sql.sources._
 import scala.collection.mutable.Stack
+
+//import kr.ac.yonsei.delab.addb_srconnector.util.Logging
 
 /*
  * generate full datakey :=  "D:{TableInfo:PartitionInfo}"
@@ -41,25 +43,15 @@ object KeyUtil {
     buf.toString()
   }
   
-  def generateDataKey(tableID:Int):String = {
-    var buf:StringBuilder = new StringBuilder
-    // tableInfo
-    buf.append("D:{").append(tableID+":").append("}")
-    buf.toString()
-  }
-  def generateDataKey(tableID: Int, partition: String): Array[String] = {
-    var buf: StringBuilder = new StringBuilder
-    // tableInfo
-    buf.append("D:{").append(tableID + ":")
-    if (partition != null && partition.length() > 0 ) {
-      buf.append(partition)
+  def generateDataKey(tableID: Int, partitions: Array[String]): Array[String] = {
+		 var buf: StringBuilder = null
+		 val res : ArrayBuffer[String] = ArrayBuffer[String]()   
+    partitions.foreach { partition => 
+      buf = new StringBuilder
+      buf.append("D:{").append(tableID + ":").append(partition).append("}")
+      res += buf.toString
     }
-    buf.append("}").append(":G:1");
-//    buf.toString()
-    var bu:StringBuilder = new StringBuilder
-    bu.append("D:{").append(tableID+":").append(partition).append("}:G:2")
-    val ret = Array(buf.toString(), bu.toString())
-    ret
+    res.toArray
   }
 
   // return datakey and partitionInfo
@@ -104,7 +96,8 @@ object KeyUtil {
       nodes.filter(node => { node.startSlot <= slot && node.endSlot >= slot }).filter(_.idx == 0)(0)
     }
     keys.map(key => (getNode(key), key)).toArray.groupBy(_._1). // ???  (1, List(1, 2, 3)), 2 => List (4, 5, 6)
-      map(x => (makeSourceString(x._1.redisConnection.host, x._1.redisConnection.port), x._2.map(_._2))).toArray
+      map{x => (makeSourceString(x._1.redisConnection.host, x._1.redisConnection.port), x._2.map(_._2)) 
+    }.toArray
   }
 
   def getNodeForKey(nodes: Array[RedisNode], key: String): RedisNode = { // key를 입력하고, 그 key가 어떤 node에 속하는지 찾아내어주는 함수

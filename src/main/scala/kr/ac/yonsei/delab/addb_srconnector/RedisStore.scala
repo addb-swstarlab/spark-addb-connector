@@ -148,16 +148,16 @@ class RedisStore (val redisConfig:RedisConfig)
     redisCluster.hosts.foreach{
         x =>
         val conn = x.connect()
-        conn.getMeta(metaKey).foreach(
-        x => ret_scala+=KeyUtil.getPartitionFromMeta(x)    
-        )
+        conn.metakeys(metaKey).foreach {
+        x => ret_scala += KeyUtil.getPartitionFromMeta(x)
+        }
         conn.close()      
     }
         
     logInfo( s"[WONKI] : ret_scala: $ret_scala" )
 
     /* id - column cnt - partition */
-    val sourceInfos = KeyUtil.groupKeysByNode(redisCluster.hosts, ret_scala.toArray)
+    val sourceInfos = KeyUtil.groupKeysByNode(redisCluster.hosts, KeyUtil.generateDataKey(table.id, ret_scala.toArray))
     sourceInfos.foreach{
       x => 
       logInfo( s"[WONKI] : sourceInfos host-port : $x._1  partition : $x._2")
@@ -248,29 +248,31 @@ class RedisStore (val redisConfig:RedisConfig)
 
     val host = KeyUtil.returnHost(location)
     val port = KeyUtil.returnPort(location)
-
+    
     // Redirection problem occur.
-    val conn = new RedisConnection("127.0.0.1", 8000, redisCluster.host.auth,
+    val conn = new RedisConnection("127.0.0.1", port, redisCluster.host.auth,
       redisCluster.host.dbNum, redisCluster.host.timeout).connect()
     val pipeline = conn.pipelined()
 
     /* TO DO , Different IP is not enabled */
     partitions.foreach {
       partition =>
-        val keys = KeyUtil.generateDataKey(table.id, partition)
-        keys.foreach {
-          x =>
+//        val keys = KeyUtil.generateDataKey(table.id, partition)
+//        keys.foreach {
+//          x =>
+            logInfo( s"[WONKI] : key in scan = $partition | port = $port")
             // TO DO, prunedCoulumns need to be changed columnIndex when nvscan is implemented,
             // because Redis do not recognize columnName
             prunedColumns.map {
               column =>
+                logInfo( s"column : $column")
                 //KeyUtil.generateDataKey(table.id, partition)
-                pipeline.hmget(x, column)
-            }
+                pipeline.hmget(partition, column)
+//            }
         }
     }
-
     val values = pipeline.syncAndReturnAll().map(_.asInstanceOf[ArrayList[String]].get(0))
+    values.foreach { x => logInfo(s"values: $x") }
     val numRow = values.length / prunedColumns.length
     println("value length = " + values.length)
     println("pruned length = " + prunedColumns.length)
