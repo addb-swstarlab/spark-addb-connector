@@ -104,5 +104,14 @@ object KeyUtil {
     nodes.filter(node => { node.startSlot <= slot && node.endSlot >= slot }).filter(_.idx == 0)(0)
   }
   
+  // Make required column indice (fpscan parameter2)
+  def makeRequiredColumnIndice (columnNameWithIndex:Map[String, Int], prunedColumns:Array[String]):String = {
+    val buf : ArrayBuffer[Int] = ArrayBuffer[Int]()
+        prunedColumns.foreach { column => 
+          buf += columnNameWithIndex(column)
+         }
+    println("indice= "+buf.toArray.mkString(","))
+    buf.toArray.mkString(",")
+  }
   
 }

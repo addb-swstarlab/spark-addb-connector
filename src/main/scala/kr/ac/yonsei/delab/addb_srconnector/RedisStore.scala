@@ -256,13 +256,7 @@ class RedisStore (val redisConfig:RedisConfig)
     datakeys.foreach {
       datakey =>
       logInfo( s"[WONKI] : key in scan = $datakey | port = $port")
-      // TO DO, prunedCoulumns need to be changed columnIndex when nvscan is implemented,
-      // because Redis do not recognize columnName
-      prunedColumns.map {
-    	  column =>
-    	  logInfo( s"column : $column")
-       }
-      val commandArgsObject = new CommandArgsObject(datakey, "1,2,3,4")
+      val commandArgsObject = new CommandArgsObject(datakey, KeyUtil.makeRequiredColumnIndice(table.columnNameWithID, prunedColumns))
     	 pipeline.fpscan(commandArgsObject)
     }
     // For getting String data, transform original(List[Object]) data
