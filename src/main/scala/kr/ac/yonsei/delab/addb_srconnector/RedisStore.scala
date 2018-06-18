@@ -131,6 +131,7 @@ class RedisStore (val redisConfig:RedisConfig)
     val metaKey =KeyUtil.generateKeyForMeta(table.id)
     logInfo( s"[WONKI] : metaKey: $metaKey" )
 
+    // Make filter
     var retbuf = new StringBuilder
     filter.foreach { x =>
       var stack = new Stack[String]
@@ -143,7 +144,7 @@ class RedisStore (val redisConfig:RedisConfig)
     logInfo(s"new String for Filter = " + retbuf.toString())
 
     val ret_scala : ArrayBuffer[String] = ArrayBuffer[String]()    
-    redisCluster.hosts.foreach{
+    redisCluster.nodes.foreach{
         x =>
         val conn = x.connect()
         conn.metakeys(metaKey).foreach {
@@ -155,7 +156,7 @@ class RedisStore (val redisConfig:RedisConfig)
     logInfo( s"[WONKI] : ret_scala: $ret_scala" )
 
     /* id - column cnt - partition */
-    val sourceInfos = KeyUtil.groupKeysByNode(redisCluster.hosts, KeyUtil.generateDataKey(table.id, ret_scala.toArray))
+    val sourceInfos = KeyUtil.groupKeysByNode(redisCluster.nodes, KeyUtil.generateDataKey(table.id, ret_scala.toArray))
     sourceInfos.foreach{
       x => 
       logInfo( s"[WONKI] : sourceInfos host-port : $x._1  partition : $x._2")
@@ -188,7 +189,7 @@ class RedisStore (val redisConfig:RedisConfig)
     // 2) Execute pipelined command in each node
     //   From SRC := [RedisRelation]-RedisCluster(RedisConnection)
     //   To ADDB :=  [RedisStore]-RedisCluster(RedisConnection)
-    KeyUtil.groupKeysByNode(redisCluster.hosts, keyRowPair.keysIterator).foreach{
+    KeyUtil.groupKeysByNode(redisCluster.nodes, keyRowPair.keysIterator).foreach{
       case(node, datakeys) => {
         val conn = node.connect
         val pipeline = conn.pipelined
@@ -238,21 +239,25 @@ class RedisStore (val redisConfig:RedisConfig)
     datakeys: Array[String], // datakeys including partition key
     prunedColumns: Array[String]): Iterator[RedisRow] = {
 
+    		logInfo( s"scan scan scan")
     val columnIndex = prunedColumns.map { columnName =>
       "" + (table.columns.map(_.name).indexOf(columnName) + 1)
     }
+    
+//    println(s"${redisCluster.nodes}")
+//    redisCluster.nodes.foreach { node => 
+//      println("port: "+node.redisConnection.port +", idx:" + node.idx +", " + node.startSlot +"~"+node.endSlot)
+//    }
 
     //val keys : Array[String] = columnIndex.toArray
 
     val host = KeyUtil.returnHost(location)
     val port = KeyUtil.returnPort(location)
-    
-    // Redirection problem occur.
-    val conn = new RedisConnection("127.0.0.1", port, redisCluster.host.auth,
-      redisCluster.host.dbNum, redisCluster.host.timeout).connect()
+ 
+    val nodeIndex = redisCluster.checkNodes(port)
+    val conn = redisCluster.nodes(nodeIndex).redisConnection.connect
     val pipeline = conn.pipelined()
 
-    /* TO DO , Different IP is not enabled */
     datakeys.foreach {
       datakey =>
       logInfo( s"[WONKI] : key in scan = $datakey | port = $port")
@@ -264,11 +269,16 @@ class RedisStore (val redisConfig:RedisConfig)
     val values = {
       val buffer : ArrayBuffer[String] = ArrayBuffer[String]()
       val fpscanResult = pipeline.syncAndReturnAll.map(_.asInstanceOf[ArrayList[String]])
+//      logInfo(s"fpscanResult = $fpscanResult")
+//      logInfo(s"fpscanResult size = ${fpscanResult.size}")
       for {
-        i <- 0 until fpscanResult.get(0).size
+        i <- 0 until fpscanResult.size
+        j <- 0 until fpscanResult.get(i).size
       } {
-    	  buffer += fpscanResult.map(arrayList => arrayList.get(i)).apply(0)
-    			  logInfo(s"buffer = ${buffer}")
+//        logInfo(s"($i , $j), ${fpscanResult.get(i).size}")
+//    	  buffer += fpscanResult.map(arrayList => arrayList.get(j)).apply(i)        
+    	  buffer += fpscanResult.get(i).get(j)
+    	  logInfo(s"buffer = $buffer")
       }
       buffer
     }

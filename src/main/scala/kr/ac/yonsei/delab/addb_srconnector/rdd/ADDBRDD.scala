@@ -43,7 +43,7 @@ class ADDBRDD (
       i += 1
       partition
     }.toArray // (RedisPartition1 , RedisPartition2, RedisPartition3)
-    // Need to balance (partition-node)
+    // TO DO, Need to balance (partition-node)
   }
   
   // Each RedisPartition from getPartitions is adapted to compute()

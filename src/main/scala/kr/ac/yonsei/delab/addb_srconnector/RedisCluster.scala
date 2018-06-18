@@ -12,7 +12,7 @@ class RedisCluster(val host: RedisConnection)
   extends Serializable
   with Logging {
   
-  val hosts = getHosts(host)
+  val nodes = getHosts(host)
   
 	private def checkClusterEnabled(redisConnection: RedisConnection): Boolean = {
 		val conn = redisConnection.connect()
@@ -58,13 +58,23 @@ class RedisCluster(val host: RedisConnection)
   }
   def getNodes(redisConnection: RedisConnection): Array[RedisNode] = { 
     if (!checkClusterEnabled(redisConnection)) {
-    	logInfo(s"ADDB must be operated in cluster modes")
-    	// Should add throw exception
+    	throw new UnsupportedOperationException( s"[ERROR] ADDB must be operated in cluster modes" )
     }
     getClusterNodes(redisConnection)
   }
 	def getHosts(redisConnection: RedisConnection): Array[RedisNode] = {
 			getNodes(redisConnection).filter { _.idx == 0 }
+	}
+	
+	// TO DO
+	def checkNodes(port: Int):Int = {
+	  var res = -1
+	  for (i <- 0 until nodes.size) {
+	    if (nodes(i).redisConnection.port == port) {
+	      res = i
+	    }
+	  }
+	  res
 	}
   
 }
