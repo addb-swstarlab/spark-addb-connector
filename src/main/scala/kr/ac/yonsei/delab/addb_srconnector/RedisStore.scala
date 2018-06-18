@@ -265,9 +265,10 @@ class RedisStore (val redisConfig:RedisConfig)
       val buffer : ArrayBuffer[String] = ArrayBuffer[String]()
       val fpscanResult = pipeline.syncAndReturnAll.map(_.asInstanceOf[ArrayList[String]])
       for {
-        i <- 0 until prunedColumns.size
+        i <- 0 until fpscanResult.get(0).size
       } {
     	  buffer += fpscanResult.map(arrayList => arrayList.get(i)).apply(0)
+    			  logInfo(s"buffer = ${buffer}")
       }
       buffer
     }

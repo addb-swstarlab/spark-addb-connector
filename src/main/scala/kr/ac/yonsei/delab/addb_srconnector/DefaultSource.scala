@@ -44,6 +44,7 @@ class DefaultSource
     	   throw new IllegalArgumentException( s"[ERROR] Mismatch between schema and partition column name" )
        }
      }
+    // TO DO, index
     // 3) index info
     
     
@@ -51,31 +52,23 @@ class DefaultSource
   
   // RelationProvider := do not specify schema
   override def createRelation (sqlContext: SQLContext, parameters: Map[String, String]): BaseRelation = {
-    logInfo ( s"##[ADDB][DefaultSource-(Relation)] Please enter relation schema info!" )
-//    logTrace ( s"Please enter relation schema info!" )
     createRelation(sqlContext, parameters, null)
   }
   // SchemaRelationProvider := specified schema by user
   override def createRelation (sqlContext: SQLContext, parameters: Map[String, String], schema:StructType): BaseRelation = {
-    logInfo ( s"##[ADDB][DefaultSource-(SchemaRelation)]" )
-    /*
-     * test code
-    // get schema Info
-    val schemaFields = schema.fields;
-    schemaFields.foreach { x => println(x.name + ", " + x.dataType) }
-    println(schemaFields.length)
-    // get parameters
-    val auth = parameters.getOrElse("AUTO", "foobared");    
-    // test zipWithIndex
-    val cols = schema.fields.zipWithIndex
-    cols.foreach(x => println(x._1.toString() + " " + x._2))
-    logInfo ( s"##[ADDB][printAll zipWithIndex]" )
-		*/    
+    logInfo ( s"##[ADDB] createRelation with user schema" )
+    // Check user schema because addb does not provide schema-inference feature
+    if (schema == null) {
+      throw new IllegalArgumentException( s"[ERROR] No schema. Please enter relation schema!" )
+    }
+
+    // Set configuration based on parameters
     val param:HashMap[String, String] = HashMap(parameters.toSeq:_*)
     val configuration = Configuration(param)
     
     checkOptions(configuration, schema)
     
+    // Return and store addbRelation about create relation
     val addbRelation = ADDBRelation(parameters, schema)(sqlContext)
     addbRelation.configure(configuration)
     addbRelation
@@ -83,7 +76,6 @@ class DefaultSource
   // CreatableRelationProvider := When save DataFrame to data source
   // SaveMode => Overwrite, Append, ErrorIfExists, Ignore
   override def createRelation (sqlContext: SQLContext, mode: SaveMode, parameters: Map[String, String], data: DataFrame): BaseRelation = {
-    logInfo ( s"##[ADDB][DefaultSource-(creatableRelation)] Mode:= $mode Please enter relation schema info!" )
     createRelation(sqlContext, parameters, data.schema)
   } 
 }

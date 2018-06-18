@@ -40,9 +40,9 @@ case class ADDBRelation (parameters: Map[String,String],
   
   def buildRedisTable: RedisTable = {
     val tableID = configuration.get(TABLE_KEY).toInt
-    // check whether current table is in the RedisTableList
+    // Check whether current table is in the RedisTableList
     if (RedisTableList.checkList(tableID)) {
-      // return stored RedisTable
+      // Return stored RedisTable
       RedisTableList.list.get(tableID).get
     }
     else {
@@ -82,7 +82,7 @@ case class ADDBRelation (parameters: Map[String,String],
     					logInfo( s"Index is not implemented yet.." )
     					RedisTable(tableID, columns.values.toArray, partitionColumnNames);
       }
-      // build new RedisTable and insert it into RedisTableList
+      // Build new RedisTable and insert it into RedisTableList
       val newRedisTable = buildNewRedisTable
       RedisTableList.insertTableList(tableID, newRedisTable)
       newRedisTable
@@ -94,7 +94,7 @@ case class ADDBRelation (parameters: Map[String,String],
   /** ADDB
    *  WonKi Choi 2018-05-17
    *  implementation for Scan operation in SparkSQL
-   *  build scan for retuning RDD object.
+   *  build scan for returning RDD object.
    */
   
   // TableScan
@@ -141,7 +141,7 @@ case class ADDBRelation (parameters: Map[String,String],
       val redisStore = redisConfig.getRedisStore(); // ADDBRelationRedisConfig->RedisConfig->RedisStore
       val columnsWithIndex = schema.fields.zipWithIndex // ( (field1:StructField, 0) , (field2, 1) , (field3, 2) ... )
       try {
-        val redisRow = partition.map{ row =>
+        val redisRow = partition.map{ row => // redisRow:Iterator[RedisRow]
           val columns = columnsWithIndex.map{ pair=>
             val columnValue = row.get(pair._2) // 기존의 row에서 index 위치를 활용하여 값을 가져온다.
             if ( columnValue == null ) {
@@ -154,7 +154,7 @@ case class ADDBRelation (parameters: Map[String,String],
           }
         redisStore.add(redisRow)
       } finally {
-//      	redisStore.sessionManager.end()
+        //
       }
     }
   }
