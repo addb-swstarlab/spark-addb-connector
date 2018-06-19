@@ -43,15 +43,16 @@ class RedisCluster(val host: RedisConnection)
          * And the idx of a master is always 0, we rely on this fact to
          * filter master.
          */
-        (0 until (slotInfo.size - 2)).map(i => {
-        	val node = slotInfo(i + 2).asInstanceOf[java.util.List[java.lang.Object]]
-        			val host = SafeEncoder.encode(node.get(0).asInstanceOf[Array[scala.Byte]])
-        			val port = node.get(1).toString.toInt
-        			RedisNode(new RedisConnection(host, port, redisConnection.auth, 
-        					redisConnection.dbNum, redisConnection.timeout),
-        					sPos, ePos, i, slotInfo.size - 2)
-        })
-      }
+        (0 until (slotInfo.size - 2)).map(
+            i => {
+              val node = slotInfo(i + 2).asInstanceOf[java.util.List[java.lang.Object]]
+              val host = SafeEncoder.encode(node.get(0).asInstanceOf[Array[scala.Byte]])
+              val port = node.get(1).toString.toInt
+              RedisNode(new RedisConnection(host, port, redisConnection.auth, 
+                  redisConnection.dbNum, redisConnection.timeout),
+                  sPos, ePos, i, slotInfo.size - 2)
+              })
+        }
     }.toArray
     conn.close()
     res

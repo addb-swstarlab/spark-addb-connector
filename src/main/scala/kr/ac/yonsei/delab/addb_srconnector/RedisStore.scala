@@ -61,10 +61,8 @@ case class RedisTable (
   
   val columnCount = columns.size
   val columnNameWithID = columns.map(_.name).zip(Stream from 1).toMap // from index 1
-  val partitionColumnID:Array[Int] = partitionColumnNames.map(columnName => 
-                                 columnNameWithID(columnName)).toArray
-//  val partitionInfo = PartitionUtil.getPartitionInfo(partitionColumnIndex)
-  
+  val partitionColumnID:Array[Int] = partitionColumnNames.map(
+      columnName => columnNameWithID(columnName)).toArray
   // get index column index&type
 //  val index:Array[Int] = 
 }
@@ -78,7 +76,7 @@ object RedisTableList
     list += (tableID -> redisTable)
     		logInfo(s"Insert into RedisTableList")
   }
-  
+
   def checkList(tableID: Int):Boolean = {
     if (list.size == 0) {
     	 logInfo(s"RedisTableList is empty")
@@ -92,20 +90,6 @@ object RedisTableList
     }
   }
 }
-
-
-class Source(
-    tableId: Int,
-    columnCnt: Int,
-    Partition: String
-    ) {  
-}
-
-//class RedisRowBase(Source
-//  val columns: Map[String, String] )
-//  extends Serializable {
-//}
-
 /*
  * RedisStore class
  * 		run actual INSERT(add), SELECT(scan) statement from/to redis 
@@ -116,8 +100,8 @@ class RedisStore (val redisConfig:RedisConfig)
   // Retain host's cluster node
   val redisCluster: RedisCluster = {
     new RedisCluster({
-      val configuration = this.redisConfig.configuration
-      val host = configuration.getOrElse("host", Protocol.DEFAULT_HOST)
+     val configuration = this.redisConfig.configuration
+     val host = configuration.getOrElse("host", Protocol.DEFAULT_HOST)
     	val port = configuration.getOrElse("port", Protocol.DEFAULT_PORT.toString).toInt
     	val auth = configuration.getOrElse("auth", null)
     	val dbNum = configuration.getOrElse("dbNum", Protocol.DEFAULT_DATABASE.toString).toInt
@@ -133,36 +117,35 @@ class RedisStore (val redisConfig:RedisConfig)
 
     // Make filter
     var retbuf = new StringBuilder
-    filter.foreach { x =>
-      var stack = new Stack[String]
-      Filters.makeFilterString(x, stack)
-      while (!stack.isEmpty) {
-        retbuf.append(stack.pop())
-      }
+    filter.foreach { 
+      x =>
+        var stack = new Stack[String]
+        Filters.makeFilterString(x, stack)
+        while (!stack.isEmpty) {
+          retbuf.append(stack.pop())
+         }
       retbuf.append("$")
-    }
+     }
     logInfo(s"new String for Filter = " + retbuf.toString())
 
     val ret_scala : ArrayBuffer[String] = ArrayBuffer[String]()    
     redisCluster.nodes.foreach{
         x =>
-        val conn = x.connect()
-        conn.metakeys(metaKey).foreach {
-        x => ret_scala += KeyUtil.getPartitionFromMeta(x)
-        }
-        conn.close()      
+          val conn = x.connect()
+          conn.metakeys(metaKey).foreach (
+            x => ret_scala += KeyUtil.getPartitionFromMeta(x) )
+          conn.close()      
     }
         
     logInfo( s"[WONKI] : ret_scala: $ret_scala" )
 
-    /* id - column cnt - partition */
-    val sourceInfos = KeyUtil.groupKeysByNode(redisCluster.nodes, KeyUtil.generateDataKey(table.id, ret_scala.toArray))
-    sourceInfos.foreach{
+    // Spark partitioning := partition keys with corresponding port
+    val partitioning = KeyUtil.groupKeysByNode(redisCluster.nodes, KeyUtil.generateDataKey(table.id, ret_scala.toArray))
+    partitioning.foreach {
       x => 
-      logInfo( s"[WONKI] : sourceInfos host-port : $x._1  partition : $x._2")
+        logInfo( s"[WONKI] : partitioning host-port : $x._1  partition : $x._2")
     }
-    logInfo( s"[WONKI] : sourceInfos: $sourceInfos" )
-    sourceInfos
+    partitioning
   }
 
   /*
@@ -175,11 +158,12 @@ class RedisStore (val redisConfig:RedisConfig)
     val rowForTableInfo = rows.toArray
     
     // 1) Generate datakey
-    val keyRowPair:Map[String, RedisRow] = rowForTableInfo.map{ row => 
+    val keyRowPair:Map[String, RedisRow] = rowForTableInfo.map{ 
+      row => 
       // Generate partition:= (1) (index, name) -> (2) (index, value)
       val partitionIndexWithName = row.table.partitionColumnID.zip(row.table.partitionColumnNames)
-      val partitionIndexWithValue = partitionIndexWithName.map(column => 
-                               (column._1, row.columns.get(column._2).get))
+      val partitionIndexWithValue = partitionIndexWithName.map(
+          column => (column._1, row.columns.get(column._2).get))
       val (dataKey, partition) = KeyUtil.generateDataKey(row.table.id, partitionIndexWithValue)
       // set PartitionInfo
       partitionInfo = partition
@@ -196,7 +180,6 @@ class RedisStore (val redisConfig:RedisConfig)
         datakeys.foreach{
           datakey => {
             val row:RedisRow = keyRowPair(datakey)
-            
             // Convert from data:String to data:List<String> (compatible with Java List type)
             val data = row.columns.map(_._2).toList.asJava
             logInfo(s"PartitionInfo: "+ partitionInfo)
@@ -211,49 +194,22 @@ class RedisStore (val redisConfig:RedisConfig)
         }
      }
   }
-
-  // Do not use each RedisRow parameter because of groupKeysByNode function
-//  def add(row: RedisRow): Unit = {
-//    
-//  }
-
-  def get(key: String): Iterator[RedisRow] = {
-    throw new RuntimeException(s"Unsupported method on this mode")
-  }
-
-  def getByRanges(
-                   table: String,
-                   key: String,
-                   ranges: Array[Range]
-                 ): Iterator[RedisRow] = {
-    throw new RuntimeException(s"Unsupported method on this mode")
-  }
-
-  def remove(row: RedisRow): Unit = {
-    throw new RuntimeException(s"Unsupported method on this mode")
-  }
-
   def scan(
     table: RedisTable,
     location: String,
     datakeys: Array[String], // datakeys including partition key
     prunedColumns: Array[String]): Iterator[RedisRow] = {
 
-    		logInfo( s"scan scan scan")
-    val columnIndex = prunedColumns.map { columnName =>
-      "" + (table.columns.map(_.name).indexOf(columnName) + 1)
+    val columnIndex = prunedColumns.map { 
+      columnName =>
+    	   "" + (table.columns.map(_.name).indexOf(columnName) + 1)
     }
-    
 //    println(s"${redisCluster.nodes}")
 //    redisCluster.nodes.foreach { node => 
 //      println("port: "+node.redisConnection.port +", idx:" + node.idx +", " + node.startSlot +"~"+node.endSlot)
 //    }
 
-    //val keys : Array[String] = columnIndex.toArray
-
-    val host = KeyUtil.returnHost(location)
     val port = KeyUtil.returnPort(location)
- 
     val nodeIndex = redisCluster.checkNodes(port)
     val conn = redisCluster.nodes(nodeIndex).redisConnection.connect
     val pipeline = conn.pipelined()
@@ -265,41 +221,50 @@ class RedisStore (val redisConfig:RedisConfig)
     	 pipeline.fpscan(commandArgsObject)
     }
     // For getting String data, transform original(List[Object]) data
-    // List[Object] -> List[ArrayList[String]] -> Buffer[ArrayList[String].get(i)].get(0) -> String
+    // List[Object] -> List[ArrayList[String]] -> Buffer[ArrayList[String]] -> Append each String
     val values = {
       val buffer : ArrayBuffer[String] = ArrayBuffer[String]()
       val fpscanResult = pipeline.syncAndReturnAll.map(_.asInstanceOf[ArrayList[String]])
 //      logInfo(s"fpscanResult = $fpscanResult")
 //      logInfo(s"fpscanResult size = ${fpscanResult.size}")
-      for {
-        i <- 0 until fpscanResult.size
-        j <- 0 until fpscanResult.get(i).size
-      } {
-//        logInfo(s"($i , $j), ${fpscanResult.get(i).size}")
-//    	  buffer += fpscanResult.map(arrayList => arrayList.get(j)).apply(i)        
-    	  buffer += fpscanResult.get(i).get(j)
-    	  logInfo(s"buffer = $buffer")
-      }
+      fpscanResult.foreach { 
+        arrayList => arrayList.foreach ( content => buffer+=content )
+       }
       buffer
     }
-    values.foreach { x => logInfo(s"values: $x") }
+//    values.foreach { x => logInfo(s"values: $x") }
     val numRow = values.length / prunedColumns.length
-    println("value length = " + values.length)
-    println("pruned length = " + prunedColumns.length)
-    println("numRow = " + numRow)
+//    println("value length = " + values.length)
+//    println("pruned length = " + prunedColumns.length)
+//    println("numRow = " + numRow)
     val columnList = Stream.continually(prunedColumns).take(numRow).flatten.toArray
     columnList.foreach( x => logInfo(s"columnList $x"))
     val res = columnList.zip(values)
 
-    conn.close()
+    conn.close
 
-    var totalRow = 0
-
-    val result = res.grouped(prunedColumns.length).map { x =>
-      val columns: Map[String, String] = x.toMap
-      val redisRow = new RedisRow(table, columns)
-      (redisRow)
+    val result = res.grouped(prunedColumns.length).map { 
+      x =>
+        val columns: Map[String, String] = x.toMap
+        new RedisRow(table, columns)
     }
-    result
+   result
+  }
+  
+  def add(row: RedisRow): Unit = {
+    throw new RuntimeException(s"Unsupported method on this mode")
+  }
+  def get(key: String): Iterator[RedisRow] = {
+    throw new RuntimeException(s"Unsupported method on this mode")
+  }
+  def getByRanges(
+                   table: String,
+                   key: String,
+                   ranges: Array[Range]
+                 ): Iterator[RedisRow] = {
+    throw new RuntimeException(s"Unsupported method on this mode")
+  }
+  def remove(row: RedisRow): Unit = {
+    throw new RuntimeException(s"Unsupported method on this mode")
   }
 }

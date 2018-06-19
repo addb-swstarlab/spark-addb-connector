@@ -39,10 +39,11 @@ class DefaultSource
      }
     // Check proper partition column name
     val schemaColumns = schema.fieldNames
-    partitionInfo.foreach { partitionColumn =>  
-      if (!(schemaColumns.contains(partitionColumn))){
-    	   throw new IllegalArgumentException( s"[ERROR] Mismatch between schema and partition column name" )
-       }
+    partitionInfo.foreach { 
+      partitionColumn =>  
+        if (!(schemaColumns.contains(partitionColumn))) {
+          throw new IllegalArgumentException( s"[ERROR] Mismatch between schema and partition column name" )
+         }
      }
     // TO DO, index
     // 3) index info
