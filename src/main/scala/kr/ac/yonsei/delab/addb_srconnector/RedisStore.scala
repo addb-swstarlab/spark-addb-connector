@@ -89,6 +89,14 @@ object RedisTableList
       true
     }
   }
+  
+  def getTableColumnWithIndex(tableID: Int):Map[String, Int] = {
+    var res = list.get(tableID)
+    if (res == None) {
+      throw new NoSuchElementException(s"[Error] There is no corresponding RedisTable...")
+    }
+    res.get.columnNameWithID
+  }
 }
 /*
  * RedisStore class
@@ -120,7 +128,7 @@ class RedisStore (val redisConfig:RedisConfig)
     filter.foreach { 
       x =>
         var stack = new Stack[String]
-        Filters.makeFilterString(x, stack)
+        Filters.makeFilterString(x, stack, table.id)
         while (!stack.isEmpty) {
           retbuf.append(stack.pop())
          }
@@ -217,7 +225,7 @@ class RedisStore (val redisConfig:RedisConfig)
     datakeys.foreach {
       datakey =>
       logInfo( s"[WONKI] : key in scan = $datakey | port = $port")
-      val commandArgsObject = new CommandArgsObject(datakey, KeyUtil.makeRequiredColumnIndice(table.columnNameWithID, prunedColumns))
+      val commandArgsObject = new CommandArgsObject(datakey, KeyUtil.makeRequiredColumnIndice(table.id, prunedColumns))
     	 pipeline.fpscan(commandArgsObject)
     }
     // For getting String data, transform original(List[Object]) data

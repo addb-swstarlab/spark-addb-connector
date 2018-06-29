@@ -2,10 +2,9 @@ package kr.ac.yonsei.delab.addb_srconnector.util
 
 import scala.collection.mutable.{StringBuilder, ArrayBuffer}
 import redis.clients.addb_jedis.util.JedisClusterCRC16
-import kr.ac.yonsei.delab.addb_srconnector.RedisNode
+import kr.ac.yonsei.delab.addb_srconnector.{RedisNode, RedisTableList}
 import org.apache.spark.sql.sources._
 import scala.collection.mutable.Stack
-
 
 /*
  * generate full datakey :=  "D:{TableInfo:PartitionInfo}"
@@ -105,7 +104,8 @@ object KeyUtil {
   }
   
   // Make required column indice (fpscan parameter2)
-  def makeRequiredColumnIndice (columnNameWithIndex:Map[String, Int], prunedColumns:Array[String]):String = {
+  def makeRequiredColumnIndice (tableID:Int, prunedColumns:Array[String]):String = {
+    val columnNameWithIndex = RedisTableList.getTableColumnWithIndex(tableID)
     val buf : ArrayBuffer[Int] = ArrayBuffer[Int]()
         prunedColumns.foreach { column => 
           buf += columnNameWithIndex(column)
