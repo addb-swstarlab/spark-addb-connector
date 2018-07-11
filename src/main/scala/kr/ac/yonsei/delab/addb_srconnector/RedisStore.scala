@@ -134,13 +134,13 @@ class RedisStore (val redisConfig:RedisConfig)
          }
       retbuf.append("$")
      }
-    logInfo(s"new String for Filter = " + retbuf.toString())
+    logInfo(s"new String for Filter = " + retbuf.toString() +", "+ retbuf.toString.isEmpty)
 
     val ret_scala : ArrayBuffer[String] = ArrayBuffer[String]()    
     redisCluster.nodes.foreach{
         x =>
           val conn = x.connect()
-          conn.metakeys(metaKey).foreach (
+          conn.metakeys(metaKey, retbuf.toString).foreach (
             x => ret_scala += KeyUtil.getPartitionFromMeta(x) )
           conn.close()      
     }
