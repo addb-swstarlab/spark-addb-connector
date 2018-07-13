@@ -14,7 +14,7 @@ trait Configurable
   
   def configure(conf:Configuration):Unit = {
     this.configuration = conf
-    logInfo(s"$conf is configured")
+//    logInfo(s"$conf is configured")
   }
 }
 

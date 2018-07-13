@@ -56,7 +56,7 @@ case class ADDBRelation (parameters: Map[String,String],
     			     ) ) 
     			  }.toSeq:_* )
     			// ex) { col1 -> RedisColumn(col1, string) }
-    			logInfo( s"Columns: $columns" )
+//    			logInfo( s"Columns: $columns" )
       		//    val indexColumnInformations = configuration.gets( INDEX_COLUMNS_KEY )
 
       		// Partition can be multiple columns while OPTIONS must get 1 'partitions' key
@@ -113,9 +113,9 @@ case class ADDBRelation (parameters: Map[String,String],
 
   // PrunedFilteredScan
   override def buildScan(requiredColumns: Array[String], filters: Array[Filter]): RDD[Row] = {
-    logInfo(s"buildScan: prunedFilterScan")
-    requiredColumns.foreach(x => logInfo(s"requiredColumns : $x"))
-    logInfo(s"filter size : ${filters.size}")
+//    logInfo(s"buildScan: prunedFilterScan")
+//    requiredColumns.foreach(x => logInfo(s"requiredColumns : $x"))
+//    logInfo(s"filter size : ${filters.size}")
     filters.foreach(x => logInfo(s"filters : $x"))
 
     val redisConfig = getRedisConfig( configuration )
@@ -151,6 +151,7 @@ case class ADDBRelation (parameters: Map[String,String],
                   if ( columnValue == null ) {
                     ( pair._1.name, null )
                   } else {
+//                    println(s"col: ${pair._1.name} , value: ${columnValue.toString()}")
                     ( pair._1.name, columnValue.toString() )
                      }
               }.toMap

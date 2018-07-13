@@ -16,12 +16,12 @@ class RedisConfig (val configuration:Configuration)
   def createRedisStore(): RedisStore = {
     val store = new RedisStore( this )
     store.configure( configuration )
-    logInfo( s"$store created" )
+//    logInfo( s"$store created" )
     store
   }
   
   def getRedisStore(): RedisStore = {
-    logInfo( s"get RedisStore object" )
+//    logInfo( s"get RedisStore object" )
     this.synchronized {
     	if ( redisStore == null ) {
     		redisStore = createRedisStore()

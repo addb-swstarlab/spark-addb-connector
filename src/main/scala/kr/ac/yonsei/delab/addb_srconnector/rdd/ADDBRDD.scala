@@ -10,6 +10,7 @@ import org.apache.spark.sql.{DataFrame, SQLContext, Row}
 import org.apache.spark.sql.sources._
 import kr.ac.yonsei.delab.addb_srconnector.util
 import org.apache.spark.sql.types._
+import scala.math.BigDecimal
 import scala.reflect.ClassTag
 import java.text.NumberFormat
 import scala.collection.JavaConversions._
@@ -37,7 +38,7 @@ class ADDBRDD (
       val loc = mem._1
       logInfo( s"[WONKI] : getPartitions mem 1 : ${mem._1}")
       val sources : Array[String] = mem._2
-      sources.foreach { x => logInfo(s"RedisPartition-Partition : $x") }
+//      sources.foreach { x => logInfo(s"RedisPartition-Partition : $x") }
       logInfo( s"[WONKI] : getPartitions mem 2 : ${mem._2}")
       val partition = new RedisPartition(i, redisConfig, loc, sources);
       i += 1
@@ -67,9 +68,11 @@ class RedisRDDAdaptor(
 
   def castToTarget(value: String, dataType: DataType) = {
     dataType match {
-      case IntegerType => value.toInt
-      case DoubleType => value.toDouble
-      case StringType => value.toString
+      case _: IntegerType => value.toInt
+      case _: DoubleType => value.toDouble
+      case _: StringType => value.toString
+//      case DecimalType(_,_) => value.toDouble
+      case _: DecimalType => BigDecimal(value.toDouble)
       case _ => value.toString
     }
   }
@@ -81,7 +84,7 @@ class RedisRDDAdaptor(
       redisRow =>
         val columns: Array[Any] = requiredColumns.map { column =>
           val value = redisRow.columns.getOrElse(column.name, null)
-          logInfo(s"[WONKI] : compute : $value  : $column.name  $column.dataType")
+//          logInfo(s"[WONKI] : compute : $value  : ${column.name}  ${column.dataType}")
           castToTarget(value, column.dataType)
         }
         val row = Row.fromSeq(columns.toSeq)

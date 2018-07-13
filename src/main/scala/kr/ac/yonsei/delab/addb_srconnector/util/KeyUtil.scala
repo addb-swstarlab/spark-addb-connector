@@ -110,8 +110,12 @@ object KeyUtil {
         prunedColumns.foreach { column => 
           buf += columnNameWithIndex(column)
          }
-    println("indice= "+buf.toArray.mkString(","))
-    buf.toArray.mkString(",")
+//    println("indice= "+buf.toArray.mkString(","))
+    if (buf.isEmpty) {
+      "1"
+    } else {
+    	buf.toArray.mkString(",")      
+    }
   }
   
 }
