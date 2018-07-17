@@ -111,7 +111,15 @@ object KeyUtil {
           buf += columnNameWithIndex(column)
          }
 //    println("indice= "+buf.toArray.mkString(","))
-    if (buf.isEmpty) {
+//    println(s"buf size= ${buf.size} , length= ${buf.length}, isEmpty=${buf.isEmpty}")
+    if (buf.size == 0) {
+//      for {
+//        i <- 1 to columnNameWithIndex.size
+//      } {
+//        buf += i
+//      }
+//      buf.toArray.mkString(",")
+      // get only first column
       "1"
     } else {
     	buf.toArray.mkString(",")      

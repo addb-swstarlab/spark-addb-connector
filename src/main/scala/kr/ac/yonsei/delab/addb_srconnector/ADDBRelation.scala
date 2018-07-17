@@ -127,7 +127,7 @@ case class ADDBRelation (parameters: Map[String,String],
   // InsertableRelation
   override def insert(data: DataFrame, overwrite: Boolean): Unit = {
     logInfo(s"##[ADDB][ADDBRelation-(insert)] Command occurs")
-//    logInfo(s"[dataFrame]"+data.rdd.partitions.length) // return 8
+    logInfo(s"[dataFrame]"+data.rdd.partitions.length) // return 8
     // check OVERWRITE command
     if (overwrite) {
       logInfo(s"Do not implement overwrite command. Thus, operate only append")
@@ -142,25 +142,42 @@ case class ADDBRelation (parameters: Map[String,String],
         val redisConfig = getRedisConfig( configuration ) // get current ADDBRelation RedisConfig
         val redisStore = redisConfig.getRedisStore(); // ADDBRelationRedisConfig->RedisConfig->RedisStore
         val columnsWithIndex = schema.fields.zipWithIndex // ( (field1:StructField, 0) , (field2, 1) , (field3, 2) ... )
+//        try {
+//          val redisRow = partition.map{ 
+//            row => // redisRow:Iterator[RedisRow]
+//              val columns = columnsWithIndex.map{ 
+//                pair=>
+//                  val columnValue = row.get(pair._2) // 기존의 row에서 index 위치를 활용하여 값을 가져온다.
+//                  if ( columnValue == null ) {
+//                    ( pair._1.name, null )
+//                  } else {
+////                    println(s"col: ${pair._1.name} , value: ${columnValue.toString()}")
+//                    ( pair._1.name, columnValue.toString() )
+//                     }
+//              }.toMap
+//            RedisRow(redisTable, columns)
+//            }
+//          redisStore.add(redisRow)
+//        } finally {
+////          
+//         }
         try {
-          val redisRow = partition.map{ 
-            row => // redisRow:Iterator[RedisRow]
-              val columns = columnsWithIndex.map{ 
-                pair=>
-                  val columnValue = row.get(pair._2) // 기존의 row에서 index 위치를 활용하여 값을 가져온다.
-                  if ( columnValue == null ) {
-                    ( pair._1.name, null )
-                  } else {
-//                    println(s"col: ${pair._1.name} , value: ${columnValue.toString()}")
-                    ( pair._1.name, columnValue.toString() )
-                     }
-              }.toMap
-            RedisRow(redisTable, columns)
-            }
-          redisStore.add(redisRow)
+        	partition.foreach{ 
+        		row => // redisRow:Iterator[RedisRow]
+        		val columns = columnsWithIndex.map{ 
+        			pair=>
+        			val columnValue = row.get(pair._2) // 기존의 row에서 index 위치를 활용하여 값을 가져온다.
+        			if ( columnValue == null ) {
+        				( pair._1.name, null )
+        			} else {
+        				( pair._1.name, columnValue.toString() )
+        			}
+        		}.toMap
+        		redisStore.add(RedisRow(redisTable, columns))
+        	}
         } finally {
 //          
-         }
+        }
       }
    }
 }
