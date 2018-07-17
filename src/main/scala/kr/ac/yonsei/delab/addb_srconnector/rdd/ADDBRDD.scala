@@ -4,16 +4,17 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.TaskContext
 import org.apache.spark.SparkContext
 import org.apache.spark.Partition
-import kr.ac.yonsei.delab.addb_srconnector._
-import kr.ac.yonsei.delab.addb_srconnector.partition._
-import org.apache.spark.sql.{DataFrame, SQLContext, Row}
-import org.apache.spark.sql.sources._
-import kr.ac.yonsei.delab.addb_srconnector.util
-import org.apache.spark.sql.types._
 import scala.math.BigDecimal
 import scala.reflect.ClassTag
-import java.text.NumberFormat
 import scala.collection.JavaConversions._
+import kr.ac.yonsei.delab.addb_srconnector._
+import kr.ac.yonsei.delab.addb_srconnector.partition._
+import kr.ac.yonsei.delab.addb_srconnector.util
+import org.apache.spark.sql.{DataFrame, SQLContext, Row}
+import org.apache.spark.sql.sources._
+import org.apache.spark.sql.types._
+import java.text.NumberFormat
+import java.sql.Date
 
 class ADDBRDD (
     @transient val sc: SparkContext,
@@ -71,8 +72,8 @@ class RedisRDDAdaptor(
       case _: IntegerType => value.toInt
       case _: DoubleType => value.toDouble
       case _: StringType => value.toString
-//      case DecimalType(_,_) => value.toDouble
       case _: DecimalType => BigDecimal(value.toDouble)
+      case _: DateType => Date.valueOf(value)
       case _ => value.toString
     }
   }
