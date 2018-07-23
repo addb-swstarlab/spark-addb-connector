@@ -7,6 +7,7 @@ import org.apache.spark.Partition
 import scala.math.BigDecimal
 import scala.reflect.ClassTag
 import scala.collection.JavaConversions._
+import scala.collection.mutable.ArrayBuffer
 import kr.ac.yonsei.delab.addb_srconnector._
 import kr.ac.yonsei.delab.addb_srconnector.partition._
 import kr.ac.yonsei.delab.addb_srconnector.util
@@ -26,34 +27,48 @@ class ADDBRDD (
   {
   
   override protected def getPreferredLocations(split: Partition): Seq[String] = {
-    logInfo( s"[WONKI] : getPreferredLocations called ${split.asInstanceOf[RedisPartition].location}")
+//    logInfo( s"[WONKI] : getPreferredLocations called ${split.asInstanceOf[RedisPartition].location}")
     Seq(split.asInstanceOf[RedisPartition].location)
   }
   
   override protected def getPartitions: Array[Partition] = {
-    logInfo( s"[WONKI] : getPartitions called")
+//    logInfo( s"[WONKI] : getPartitions called")
     val redisStore = redisConfig.getRedisStore()
     val sourceinfos = redisStore.getTablePartitions(redisTable, filter) // get partition key
     var i = 0
     sourceinfos.map { mem =>
       val loc = mem._1
-      logInfo( s"[WONKI] : getPartitions mem 1 : ${mem._1}")
+//      logInfo( s"[WONKI] : getPartitions mem 1 : ${mem._1}")
       val sources : Array[String] = mem._2
+      val size = mem._2.size
+      
+      var res = new ArrayBuffer[Partition]
+//      logInfo(s"size: ${mem._2.size}")
+      var partitioningSize = {
+        if (size>=10) size/10
+        else 1
+      }
+     mem._2.grouped(partitioningSize).foreach { 
+        x => 
+         res += new RedisPartition(i, redisConfig, loc, x) 
+         i+= 1
+      } 
 //      sources.foreach { x => logInfo(s"RedisPartition-Partition : $x") }
-      logInfo( s"[WONKI] : getPartitions mem 2 : ${mem._2}")
-      val partition = new RedisPartition(i, redisConfig, loc, sources);
-      i += 1
-      partition
-    }.toArray // (RedisPartition1 , RedisPartition2, RedisPartition3)
+//      logInfo( s"[WONKI] : getPartitions mem 2 : ${mem._2}")
+//      val partition = new RedisPartition(i, redisConfig, loc, sources);
+//      i += 1
+//      partition
+      res.toArray
+    }.flatten.toArray // (RedisPartition1 , RedisPartition2, RedisPartition3)
     // TO DO, Need to balance (partition-node)
   }
   
   // Each RedisPartition from getPartitions is adapted to compute()
   // Thus, scan is called by each RedisPartitions
   override def compute(split: Partition, context: TaskContext) : Iterator[RedisRow] = {
-    logInfo( s"[WONKI] : compute called")
+//    logInfo( s"[WONKI] : compute called")
     val partition = split.asInstanceOf[RedisPartition]
-    logInfo( s"[WONKI] : partition : $partition")
+//    logInfo( s"[WONKI] : partition : $partition")
     val redisStore = redisConfig.getRedisStore()
     redisStore.scan(redisTable, partition.location, partition.partition, requiredColumns)
   }  

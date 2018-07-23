@@ -146,7 +146,6 @@ class RedisStore (val redisConfig:RedisConfig)
           conn.close()      
     }
         
-//    logInfo( s"[WONKI] : ret_scala: $ret_scala" )
 
     // Spark partitioning := partition keys with corresponding port
     val partitioning = KeyUtil.groupKeysByNode(redisCluster.nodes, KeyUtil.generateDataKey(table.id, ret_scala.toArray))

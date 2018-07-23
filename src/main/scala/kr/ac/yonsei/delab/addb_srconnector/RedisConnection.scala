@@ -83,6 +83,7 @@ object RedisConnectionPool {
         val poolConfig: JedisPoolConfig = new JedisPoolConfig();
         // Configuration setting
         poolConfig.setMaxTotal(100)
+        poolConfig.setMaxWaitMillis(300000)
 //        poolConfig.setMaxIdle(32)
 //        poolConfig.setTestOnBorrow(false)
 //        poolConfig.setTestOnReturn(false)
@@ -94,8 +95,10 @@ object RedisConnectionPool {
 //          new JedisPool(poolConfig, redisConnection.host, redisConnection.port, 
 //            redisConnection.timeout, null, redisConnection.dbNum)
 //        } else {
+//          	new JedisPool(poolConfig, redisConnection.host, redisConnection.port, 
+//        			redisConnection.timeout, redisConnection.auth, redisConnection.dbNum)
           	new JedisPool(poolConfig, redisConnection.host, redisConnection.port, 
-        			redisConnection.timeout, redisConnection.auth, redisConnection.dbNum)
+          			300000, redisConnection.auth, redisConnection.dbNum)
 //         }
       }
     )
