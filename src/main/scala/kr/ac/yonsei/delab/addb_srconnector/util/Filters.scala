@@ -2,25 +2,25 @@ package kr.ac.yonsei.delab.addb_srconnector.util
 
 import scala.collection.mutable.Stack
 import org.apache.spark.sql.sources._
-import kr.ac.yonsei.delab.addb_srconnector.RedisTableList
+import kr.ac.yonsei.delab.addb_srconnector.{RedisTableList, RedisTable}
 
 object Filters { 
-    def makeFilterString(f: Filter, stack: Stack[String], tableID: Int) : Unit = {
+    def makeFilterString(f: Filter, stack: Stack[String], tableID: Int, table:RedisTable) : Unit = {
       
       // Since "column name" should be converted into "column index"
       // get Table's Column name with index from RedisTableList object
-      var columnNameWithIndex = RedisTableList.getTableColumnWithIndex(tableID)
+      var columnNameWithIndex = RedisTableList.getTableColumnWithIndex(tableID, table)
       
     f match {
       case Or(_,_) =>  { 
         stack.push("Or:")
-        makeFilterString(f.asInstanceOf[Or].left, stack, tableID)
-        makeFilterString(f.asInstanceOf[Or].right, stack, tableID)
+        makeFilterString(f.asInstanceOf[Or].left, stack, tableID, table)
+        makeFilterString(f.asInstanceOf[Or].right, stack, tableID, table)
       }
       case And(_,_) =>  {
         stack.push("And:")
-        makeFilterString(f.asInstanceOf[And].left, stack, tableID)
-        makeFilterString(f.asInstanceOf[And].right, stack, tableID)
+        makeFilterString(f.asInstanceOf[And].left, stack, tableID, table)
+        makeFilterString(f.asInstanceOf[And].right, stack, tableID, table)
       }
       
       case EqualTo(_,_) => {

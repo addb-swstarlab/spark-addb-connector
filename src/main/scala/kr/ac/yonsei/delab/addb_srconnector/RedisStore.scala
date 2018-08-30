@@ -91,10 +91,12 @@ object RedisTableList
     }
   }
   
-  def getTableColumnWithIndex(tableID: Int):Map[String, Int] = {
+  def getTableColumnWithIndex(tableID: Int, table:RedisTable):Map[String, Int] = {
     var res = list.get(tableID)
     if (res == None) {
-      throw new NoSuchElementException(s"[Error] There is no corresponding RedisTable...")
+      RedisTableList.insertTableList(tableID, table)
+      res = list.get(tableID)
+//      throw new NoSuchElementException(s"[Error] There is no corresponding RedisTable...")
     }
     res.get.columnNameWithID
   }
@@ -129,7 +131,7 @@ class RedisStore (val redisConfig:RedisConfig)
     filter.foreach { 
       x =>
         var stack = new Stack[String]
-        Filters.makeFilterString(x, stack, table.id)
+        Filters.makeFilterString(x, stack, table.id, table)
         while (!stack.isEmpty) {
           retbuf.append(stack.pop())
          }
@@ -282,14 +284,16 @@ class RedisStore (val redisConfig:RedisConfig)
     datakeys.foreach {
       datakey =>
 //      logInfo( s"[WONKI] : key in scan = $datakey | port = $port")
-      val commandArgsObject = new CommandArgsObject(datakey, KeyUtil.makeRequiredColumnIndice(table.id, prunedColumns))
+      val commandArgsObject = new CommandArgsObject(datakey, KeyUtil.makeRequiredColumnIndice(table.id, table, prunedColumns))
     	 pipeline.fpscan(commandArgsObject)
     }
     // For getting String data, transform original(List[Object]) data
     // List[Object] -> List[ArrayList[String]] -> Buffer[ArrayList[String]] -> Append each String
     val values = {
       val buffer : ArrayBuffer[String] = ArrayBuffer[String]()
-      val fpscanResult = pipeline.syncAndReturnAll.map(_.asInstanceOf[ArrayList[String]])
+      val fpscanResult = pipeline.syncAndReturnAll.map{x =>
+        logInfo(s"getClass: ${x.getClass.toString()}")
+        x.asInstanceOf[ArrayList[String]]}
 //      logInfo(s"fpscanResult = $fpscanResult")
 //      logInfo(s"fpscanResult size = ${fpscanResult.size}")
       fpscanResult.foreach { 
