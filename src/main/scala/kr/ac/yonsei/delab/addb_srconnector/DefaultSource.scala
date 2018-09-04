@@ -31,13 +31,13 @@ class DefaultSource
       case e : NumberFormatException => throw new IllegalArgumentException(s"[ERROR] table option should be numeric.")
     }
     // 2) partition info
-    // Partition can be multiple columns while OPTIONS must get 1 'partitions' key
+    // Partition can be multiple columns 
     val partitionInfo = configuration.get(PARTITION_COLUMN_KEY).split(",").map(x => x.trim)
     // Check empty
     if (partitionInfo.isEmpty) {      
       throw new IllegalArgumentException( s"[ERROR] At least, one partition column is required" )
      }
-    // Check proper partition column name
+    // Check whether partition column names are proper
     val schemaColumns = schema.fieldNames
     partitionInfo.foreach { 
       partitionColumn =>  
@@ -57,7 +57,8 @@ class DefaultSource
   }
   // SchemaRelationProvider := specified schema by user
   override def createRelation (sqlContext: SQLContext, parameters: Map[String, String], schema:StructType): BaseRelation = {
-    logInfo ( s"##[ADDB] createRelation with user schema" )
+//    logInfo ( s"##[ADDB] createRelation with user schema" )
+    
     // Check user schema because addb does not provide schema-inference feature
     if (schema == null) {
       throw new IllegalArgumentException( s"[ERROR] No schema. Please enter relation schema!" )
