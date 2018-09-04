@@ -68,10 +68,11 @@ class RedisCluster(val host: RedisConnection)
 	}
 	
 	// TO DO
-	def checkNodes(port: Int):Int = {
+	def checkNodes(host: String, port: Int):Int = {
 	  var res = -1
 	  for (i <- 0 until nodes.size) {
-	    if (nodes(i).redisConnection.port == port) {
+	    if (nodes(i).redisConnection.host == host &&
+	        nodes(i).redisConnection.port == port) {
 	      res = i
 	    }
 	  }
