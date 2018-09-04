@@ -73,27 +73,16 @@ object KeyUtil {
     * @param keys list of keys
     * return (node: (key1, key2, ...), node2: (key3, key4,...), ...)
     */
- 
-  def groupKeysByNode(nodes: Array[RedisNode], keys: Iterator[String]): // 각 노드에 속하는 key들로 이루어지도록 구성.
-  Array[(RedisNode, Array[String])] = {
-    def getNode(key: String): RedisNode = { // key를 입력하고, 그 key가 어떤 node에 속하는지 찾아내어주는 함수
-      val slot = JedisClusterCRC16.getSlot(key)
-      /* Master only */
-      nodes.filter(node => { node.startSlot <= slot && node.endSlot >= slot }).filter(_.idx == 0)(0)
-    }
-    keys.map(key => (getNode(key), key)).toArray.groupBy(_._1). // ???  (1, List(1, 2, 3)), 2 => List (4, 5, 6)
-      map(x => (x._1, x._2.map(_._2))).toArray
-  }
-
-  def groupKeysByNode(nodes: Array[RedisNode], keys: Array[String]): // 각 노드에 속하는 key들로 이루어지도록 구성.
+  
+  def groupKeysByNode(nodes: Array[RedisNode], keys: Array[String]): // keys: DataKey
   Array[(String, Array[String])] = {
-    def getNode(key: String): RedisNode = { // key를 입력하고, 그 key가 어떤 node에 속하는지 찾아내어주는 함수
+    def getNode(key: String): RedisNode = { // get RedisNode applying datakey
       val slot = JedisClusterCRC16.getSlot(key)
       /* Master only */
       nodes.filter(node => { node.startSlot <= slot && node.endSlot >= slot }).filter(_.idx == 0)(0)
     }
-    keys.map(key => (getNode(key), key)).toArray.groupBy(_._1). // ???  (1, List(1, 2, 3)), 2 => List (4, 5, 6)
-      map{x => (makeSourceString(x._1.redisConnection.host, x._1.redisConnection.port), x._2.map(_._2)) 
+    keys.map(key => (getNode(key), key)).toArray.groupBy(_._1).
+      map{x => (makeSourceString(x._1.redisConnection.host, x._1.redisConnection.port), x._2.map(_._2)) // (host+port, datakey:Array[String])
     }.toArray
   }
 
