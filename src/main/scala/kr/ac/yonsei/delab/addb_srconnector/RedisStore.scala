@@ -106,7 +106,8 @@ object RedisTableList
  * 		run actual INSERT(add), SELECT(scan) statement from/to redis 
  */
 class RedisStore (val redisConfig:RedisConfig)
-  extends Configurable {
+  extends Configurable 
+  with Serializable {
   
   // Retain host's cluster node
   val redisCluster: RedisCluster = {
@@ -121,10 +122,11 @@ class RedisStore (val redisConfig:RedisConfig)
     })
   }
   
+  // Call by getPartitions
   def getTablePartitions(table: RedisTable, filter: Array[Filter]) : Array[(String, Array[String])] = {
-    logInfo( s"[WONKI] : getTablePartitions called")
+//    logInfo( s"[WONKI] : getTablePartitions called")
     val metaKey =KeyUtil.generateKeyForMeta(table.id)
-    logInfo( s"[WONKI] : metaKey: $metaKey" )
+//    logInfo( s"[WONKI] : metaKey: $metaKey" )
 
     // Make filter
     var retbuf = new StringBuilder
@@ -137,7 +139,7 @@ class RedisStore (val redisConfig:RedisConfig)
          }
       retbuf.append("$")
      }
-    logInfo(s"new String for Filter = " + retbuf.toString() +", "+ retbuf.toString.isEmpty)
+//    logInfo(s"new String for Filter = " + retbuf.toString() +", "+ retbuf.toString.isEmpty)
 
     val ret_scala : ArrayBuffer[String] = ArrayBuffer[String]()    
     redisCluster.nodes.foreach{
@@ -151,10 +153,10 @@ class RedisStore (val redisConfig:RedisConfig)
 
     // Spark partitioning := partition keys with corresponding port
     val partitioning = KeyUtil.groupKeysByNode(redisCluster.nodes, KeyUtil.generateDataKey(table.id, ret_scala.toArray))
-    partitioning.foreach {
-      x => 
-        logInfo( s"[WONKI] : partitioning host-port : $x._1  partition : $x._2")
-    }
+//    partitioning.foreach {
+//      x => 
+//        logInfo( s"[WONKI] : partitioning host-port : $x._1  partition : $x._2")
+//    }
     partitioning
   }
 
@@ -162,122 +164,60 @@ class RedisStore (val redisConfig:RedisConfig)
    * Add data to redis through jedis pipeline
    * Process INSERT(fpwrite) command according each node
    */
-  def add(rows: Iterator[RedisRow]): Unit = {
-//    logInfo(s"### Add1 command occurs")
-    var partitionInfo = ""
-    // 0) Convert iterator to array for generating datakey
-    val rowForTableInfo = rows.toArray
-    
+  def add(row: RedisRow, 
+          pipelinePool:PipelinePool
+          /*,
+          datakey: String,
+          partitionInfo:String */): Unit = {
+    logInfo("## [JH] add function")
+    var partitionInfo = new StringBuilder
 //    rowForTableInfo.foreach { x => logInfo(s"rowForTableInfo: ${x.columns}") }
     
-    // 1) Generate datakey
-    val keyRowPair:Array[(String, RedisRow)] = rowForTableInfo.map{ 
-      row => 
-      // Generate partition:= (1) (index, name) -> (2) (index, value)
-      val partitionIndexWithName = row.table.partitionColumnID.zip(row.table.partitionColumnNames)
-      val partitionIndexWithValue = partitionIndexWithName.map(
-          column => (column._1, row.columns.get(column._2).get))
-      val (dataKey, partition) = KeyUtil.generateDataKey(row.table.id, partitionIndexWithValue)
-      // set PartitionInfo
-      partitionInfo = partition
-//      row.columns.foreach(x => logInfo(s"#### : ${x._1}, ${x._2}"))
-      (dataKey, row)
-    }
-    // 2) Execute pipelined command in each node
-    //   From SRC := [RedisRelation]-RedisCluster(RedisConnection)
-    //   To ADDB :=  [RedisStore]-RedisCluster(RedisConnection)
-    KeyUtil.groupKeysByNode(redisCluster.nodes, keyRowPair.toMap.keysIterator).foreach{
-      case(node, datakeys) => {
-        val conn = node.connect
-        val pipeline = conn.pipelined
-        datakeys.foreach{
-          datakey => {
-            keyRowPair.filter(pair => pair._1 == datakey).foreach {
-              pair =>
-                val row:RedisRow = pair._2
-                // Convert from data:String to data:List<String> (compatible with Java List type)
-                // Because of Map structure, need to sort data
-                var data = new ListBuffer[String]()
-                row.table.columnNameWithIndex.foreach {
-            	  x =>        	    
-              	  val value = row.columns.getOrElse(x._1, null)
-//              	  println(s"value: $value")
-              	  if (!(value == null)) {
-            		  data += value
-            	    }
-                }
-              // parameters: datakey, ColumnCount:String, partitionInfo, rowData
-//              data.toList.foreach(x => logInfo(s"data: $x"))
-              val commandArgsObject = new CommandArgsObject(datakey, row.table.columnCount.toString, 
-            		  partitionInfo, data.toList.asJava)
-              pipeline.fpwrite(commandArgsObject)
-              }
-    				}
-          }
-        pipeline.sync
-        conn.close
-        }
-     }
-  }
-  def add(row: RedisRow): Unit = {
-//    logInfo(s"### Add2 command occurs")
-    var partitionInfo = ""
-    
-//    rowForTableInfo.foreach { x => logInfo(s"rowForTableInfo: ${x.columns}") }
-    
-    // 1) Generate datakey
+    // 1) Generate datakey and partitionInfo
     val datakey:String = { 
       // Generate partition:= (1) (index, name) -> (2) (index, value)
       val partitionIndexWithName = row.table.partitionColumnID.zip(row.table.partitionColumnNames)
       val partitionIndexWithValue = partitionIndexWithName.map(
           column => (column._1, row.columns.get(column._2).get))
       val (key, partition) = KeyUtil.generateDataKey(row.table.id, partitionIndexWithValue)
-      // set PartitionInfo
-      partitionInfo = partition
-//      row.columns.foreach(x => logInfo(s"#### : ${x._1}, ${x._2}"))
+      partitionInfo.append(partition)
       key
     }
     // 2) Execute pipelined command in each node
     //   From SRC := [RedisRelation]-RedisCluster(RedisConnection)
     //   To ADDB :=  [RedisStore]-RedisCluster(RedisConnection)
     val node = KeyUtil.getNodeForKey(redisCluster.nodes, datakey)
-    val conn = node.connect
-    val pipeline = conn.pipelined
     
-    // Convert from data:String to data:List<String> (compatible with Java List type)
+    // 3) Convert from data:String to data:List<String> (compatible with Java List type)
     // Because of Map structure, need to sort data
     var data = new ListBuffer[String]()
-    row.table.columnNameWithIndex.foreach {
-      x => 
-        val value = row.columns.getOrElse(x._1, null)
-//      println(s"value: $value")
-        if (!(value == null)) {
-          data += value
-         }
+    row.table.columns.foreach {
+      x =>
+        // convert null to "null" string
+        data += row.columns.getOrElse(x.name, "null")
     }
+    // 4) Get pipeline and insert fpwrite command into pipeline
     val commandArgsObject = new CommandArgsObject(datakey, row.table.columnCount.toString, 
-    		partitionInfo, data.toList.asJava)
+    		partitionInfo.toString, data.toList.asJava)
+    val pipeline = pipelinePool.get(node.redisConnection.host+":"+node.redisConnection.port.toString)
     pipeline.fpwrite(commandArgsObject)
-    pipeline.sync
-    conn.close
   }
+  
   def scan(
     table: RedisTable,
     location: String,
     datakeys: Array[String], // datakeys including partition key
     prunedColumns: Array[String]): Iterator[RedisRow] = {
 
+    logInfo("## [JH] scan function")
     val columnIndex = prunedColumns.map { 
       columnName =>
     	   "" + (table.columns.map(_.name).indexOf(columnName) + 1)
     }
-//    println(s"${redisCluster.nodes}")
-//    redisCluster.nodes.foreach { node => 
-//      println("port: "+node.redisConnection.port +", idx:" + node.idx +", " + node.startSlot +"~"+node.endSlot)
-//    }
 
+    val host = KeyUtil.returnHost(location)
     val port = KeyUtil.returnPort(location)
-    val nodeIndex = redisCluster.checkNodes(port)
+    val nodeIndex = redisCluster.checkNodes(host, port)
     val conn = redisCluster.nodes(nodeIndex).redisConnection.connect
     val pipeline = conn.pipelined()
 
@@ -292,7 +232,7 @@ class RedisStore (val redisConfig:RedisConfig)
     val values = {
       val buffer : ArrayBuffer[String] = ArrayBuffer[String]()
       val fpscanResult = pipeline.syncAndReturnAll.map{x =>
-        logInfo(s"getClass: ${x.getClass.toString()}")
+//        logInfo(s"getClass: ${x.getClass.toString()}")
         x.asInstanceOf[ArrayList[String]]}
 //      logInfo(s"fpscanResult = $fpscanResult")
 //      logInfo(s"fpscanResult size = ${fpscanResult.size}")
@@ -309,9 +249,6 @@ class RedisStore (val redisConfig:RedisConfig)
       else values.length // Avoid divideByZero
     }
     
-//    println("value length = " + values.length)
-//    println("pruned length = " + prunedColumns.length)
-//    println("numRow = " + numRow)
     val columnList = {
       if (prunedColumns.length != 0) Stream.continually(prunedColumns).take(numRow).flatten.toArray
       else Stream.continually(table.columns(0).name).take(numRow).toArray // set first column
