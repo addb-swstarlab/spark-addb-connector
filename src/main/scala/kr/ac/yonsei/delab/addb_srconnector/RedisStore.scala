@@ -14,6 +14,7 @@ import scala.collection.mutable.{Stack, ArrayBuffer, ListBuffer}
 
 import redis.clients.addb_jedis.Protocol
 import redis.clients.addb_jedis.util.CommandArgsObject
+import redis.clients.addb_jedis.exceptions.JedisClusterException
 
 import kr.ac.yonsei.delab.addb_srconnector.util.KeyUtil
 import kr.ac.yonsei.delab.addb_srconnector.util.Filters
@@ -169,7 +170,7 @@ class RedisStore (val redisConfig:RedisConfig)
           /*,
           datakey: String,
           partitionInfo:String */): Unit = {
-    logInfo("## [JH] add function")
+//    logInfo("## [JH] add function")
     var partitionInfo = new StringBuilder
 //    rowForTableInfo.foreach { x => logInfo(s"rowForTableInfo: ${x.columns}") }
     
@@ -197,6 +198,7 @@ class RedisStore (val redisConfig:RedisConfig)
         data += row.columns.getOrElse(x.name, "null")
     }
     // 4) Get pipeline and insert fpwrite command into pipeline
+//    System.out.println("fpwrite "+datakey+" "+row.table.columnCount.toString + " " + partitionInfo.toString + " " + data.mkString(" "))
     val commandArgsObject = new CommandArgsObject(datakey, row.table.columnCount.toString, 
     		partitionInfo.toString, data.toList.asJava)
     val pipeline = pipelinePool.get(node.redisConnection.host+":"+node.redisConnection.port.toString)
@@ -209,7 +211,7 @@ class RedisStore (val redisConfig:RedisConfig)
     datakeys: Array[String], // datakeys including partition key
     prunedColumns: Array[String]): Iterator[RedisRow] = {
 
-    logInfo("## [JH] scan function")
+//    logInfo("## [JH] scan function")
     val columnIndex = prunedColumns.map { 
       columnName =>
     	   "" + (table.columns.map(_.name).indexOf(columnName) + 1)
@@ -232,10 +234,21 @@ class RedisStore (val redisConfig:RedisConfig)
     val values = {
       val buffer : ArrayBuffer[String] = ArrayBuffer[String]()
       val fpscanResult = pipeline.syncAndReturnAll.map{x =>
-//        logInfo(s"getClass: ${x.getClass.toString()}")
-        x.asInstanceOf[ArrayList[String]]}
+//        logInfo(s"## ADDB getClass: ${x.getClass.toString()}")
+
+        // If errors occur, casting exception is called
+        try {
+          x.asInstanceOf[ArrayList[String]]
+        } catch {
+          case e: java.lang.ClassCastException => {
+            logError(s"## ADDB Scan Error ${x.asInstanceOf[JedisClusterException]}")
+            throw e
+          }
+        }
 //      logInfo(s"fpscanResult = $fpscanResult")
 //      logInfo(s"fpscanResult size = ${fpscanResult.size}")
+//    		  case e : Exception => throw e
+    }
       fpscanResult.foreach { 
         arrayList => arrayList.foreach ( content => buffer+=content )
        }
