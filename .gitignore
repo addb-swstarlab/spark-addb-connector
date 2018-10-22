@@ -1,0 +1,8 @@
+bin/
+project/
+target/
+metastore_db/
+tmp/
+*.sbt
+derby.log
+spark-warehouse/

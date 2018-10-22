@@ -28,21 +28,21 @@ class DefaultSource
     try {
       val tableID = configuration.get(TABLE_KEY).toInt
     } catch {
-      case e : NumberFormatException => throw new IllegalArgumentException(s"[ERROR] table option should be numeric.")
+      case e : NumberFormatException => throw new IllegalArgumentException(s"[ADDB][ERROR] table option should be numeric.")
     }
     // 2) partition info
     // Partition can be multiple columns 
     val partitionInfo = configuration.get(PARTITION_COLUMN_KEY).split(",").map(x => x.trim)
     // Check empty
     if (partitionInfo.isEmpty) {      
-      throw new IllegalArgumentException( s"[ERROR] At least, one partition column is required" )
+      throw new IllegalArgumentException( s"[ADDB][ERROR] At least, one partition column is required" )
      }
     // Check whether partition column names are proper
     val schemaColumns = schema.fieldNames
     partitionInfo.foreach { 
       partitionColumn =>  
         if (!(schemaColumns.contains(partitionColumn))) {
-          throw new IllegalArgumentException( s"[ERROR] Mismatch between schema and partition column name" )
+          throw new IllegalArgumentException( s"[ADDB][ERROR] Mismatch between schema and partition column name" )
          }
      }
     // TO DO, index
@@ -61,7 +61,7 @@ class DefaultSource
     
     // Check user schema because addb does not provide schema-inference feature
     if (schema == null) {
-      throw new IllegalArgumentException( s"[ERROR] No schema. Please enter relation schema!" )
+      throw new IllegalArgumentException( s"[ADDB][ERROR] No schema. Please enter relation schema!" )
     }
 
     // Set configuration based on parameters

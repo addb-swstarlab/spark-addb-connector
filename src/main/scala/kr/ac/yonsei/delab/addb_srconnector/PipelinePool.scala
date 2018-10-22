@@ -5,6 +5,9 @@ import scala.collection.JavaConversions._
 import scala.collection.mutable.ListBuffer
 import redis.clients.addb_jedis.{Jedis, Pipeline}
 
+/*
+	In Spark Cluster mode, making all pipeline object in each node is better than serialization
+ */
 class PipelinePool {
   @transient private lazy val pipelinePools: ConcurrentHashMap[String, Pipeline] = new ConcurrentHashMap[String, Pipeline]()
   def add(hostAndPort:String, jedis:Jedis) = {

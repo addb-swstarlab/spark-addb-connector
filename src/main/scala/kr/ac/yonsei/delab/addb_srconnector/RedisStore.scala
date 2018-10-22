@@ -34,11 +34,7 @@ object ColumnType extends Enumeration {
  * columns := each columns information (column name -> value)
  */
 case class RedisRow( val table: RedisTable, val columns: Map[String, String])
-//  override val columns: Map[String, String])
-//  extends RedisRowBase(columns) {
-extends Serializable {
-	
-}
+  extends Serializable { }
 /*
  * RedisColumn class
  * 		represent each column
@@ -56,17 +52,13 @@ case class RedisColumn(val name: String, val columnType: ColumnType.Value ) { }
 case class RedisTable (
     val id: Int,
     val columns: Array[RedisColumn],
-//  val indices: Array[RedisIndex],
     val partitionColumnNames: Array[String]) {
-//  val scoreName: String) {
-  
+
   val columnCount = columns.size
   val columnNameWithIndex = columns.map(_.name).zip(Stream from 1) // index sorted Array
   val columnNameWithID = columns.map(_.name).zip(Stream from 1).toMap // from index 1. not sorted
   val partitionColumnID:Array[Int] = partitionColumnNames.map(
       columnName => columnNameWithID(columnName)).toArray
-  // get index column index&type
-//  val index:Array[Int] = 
 }
 /*
  * For reducing overhead when build redis table, maintain RedisTable list
@@ -76,20 +68,12 @@ object RedisTableList
   var list = Map[Int, RedisTable]()
   def insertTableList (tableID: Int, redisTable:RedisTable) {
     list += (tableID -> redisTable)
-//    		logInfo(s"Insert into RedisTableList")
   }
 
   def checkList(tableID: Int):Boolean = {
-    if (list.size == 0) {
-//    	 logInfo(s"RedisTableList is empty")
-    	 false
-    } else if (list.get(tableID) == None) {
-//    	 logInfo(s"RedisTable is not in RedisTableList ")
-    	 false
-    } else {
-//     	 logInfo(s"RedisTable is in RedisTableList ")
-      true
-    }
+    if (list.size == 0) false
+    else if (list.get(tableID) == None) false
+    else true
   }
   
   def getTableColumnWithIndex(tableID: Int, table:RedisTable):Map[String, Int] = {
@@ -97,7 +81,7 @@ object RedisTableList
     if (res == None) {
       RedisTableList.insertTableList(tableID, table)
       res = list.get(tableID)
-//      throw new NoSuchElementException(s"[Error] There is no corresponding RedisTable...")
+      throw new NoSuchElementException(s"[ADDB] Fatal error: There is no corresponding RedisTable...")
     }
     res.get.columnNameWithID
   }
@@ -125,9 +109,9 @@ class RedisStore (val redisConfig:RedisConfig)
   
   // Call by getPartitions
   def getTablePartitions(table: RedisTable, filter: Array[Filter]) : Array[(String, Array[String])] = {
-//    logInfo( s"[WONKI] : getTablePartitions called")
+    logDebug( s"[ADDB] : getTablePartitions called")
     val metaKey =KeyUtil.generateKeyForMeta(table.id)
-//    logInfo( s"[WONKI] : metaKey: $metaKey" )
+    logDebug( s"[ADDB] : metaKey: $metaKey" )
 
     // Make filter
     var retbuf = new StringBuilder
@@ -140,7 +124,7 @@ class RedisStore (val redisConfig:RedisConfig)
          }
       retbuf.append("$")
      }
-//    logInfo(s"new String for Filter = " + retbuf.toString() +", "+ retbuf.toString.isEmpty)
+    logDebug(s"new String for Filter = " + retbuf.toString() +", "+ retbuf.toString.isEmpty)
 
     val ret_scala : ArrayBuffer[String] = ArrayBuffer[String]()    
     redisCluster.nodes.foreach{
@@ -151,13 +135,8 @@ class RedisStore (val redisConfig:RedisConfig)
           conn.close()      
     }
         
-
     // Spark partitioning := partition keys with corresponding port
     val partitioning = KeyUtil.groupKeysByNode(redisCluster.nodes, KeyUtil.generateDataKey(table.id, ret_scala.toArray))
-//    partitioning.foreach {
-//      x => 
-//        logInfo( s"[WONKI] : partitioning host-port : $x._1  partition : $x._2")
-//    }
     partitioning
   }
 
@@ -170,7 +149,7 @@ class RedisStore (val redisConfig:RedisConfig)
           /*,
           datakey: String,
           partitionInfo:String */): Unit = {
-//    logInfo("## [JH] add function")
+    logInfo("[ADDB] add(INSERTION) function")
     var partitionInfo = new StringBuilder
 //    rowForTableInfo.foreach { x => logInfo(s"rowForTableInfo: ${x.columns}") }
     
@@ -199,8 +178,8 @@ class RedisStore (val redisConfig:RedisConfig)
     }
     // 4) Get pipeline and insert fpwrite command into pipeline
 //    System.out.println("fpwrite "+datakey+" "+row.table.columnCount.toString + " " + partitionInfo.toString + " " + data.mkString(" "))
-    val commandArgsObject = new CommandArgsObject(datakey, row.table.columnCount.toString, 
-    		partitionInfo.toString, data.toList.asJava)
+    val commandArgsObject = new CommandArgsObject(datakey, row.table.columnCount.toString,
+                                                    partitionInfo.toString, data.toList.asJava)
     val pipeline = pipelinePool.get(node.redisConnection.host+":"+node.redisConnection.port.toString)
     pipeline.fpwrite(commandArgsObject)
   }
@@ -211,7 +190,7 @@ class RedisStore (val redisConfig:RedisConfig)
     datakeys: Array[String], // datakeys including partition key
     prunedColumns: Array[String]): Iterator[RedisRow] = {
 
-//    logInfo("## [JH] scan function")
+    logDebug("[ADDB] scan function")
     val columnIndex = prunedColumns.map { 
       columnName =>
     	   "" + (table.columns.map(_.name).indexOf(columnName) + 1)
@@ -226,7 +205,8 @@ class RedisStore (val redisConfig:RedisConfig)
     datakeys.foreach {
       datakey =>
 //      logInfo( s"[WONKI] : key in scan = $datakey | port = $port")
-      val commandArgsObject = new CommandArgsObject(datakey, KeyUtil.makeRequiredColumnIndice(table.id, table, prunedColumns))
+      val commandArgsObject = new CommandArgsObject(datakey,
+                                                      KeyUtil.makeRequiredColumnIndice(table.id, table, prunedColumns))
     	 pipeline.fpscan(commandArgsObject)
     }
     // For getting String data, transform original(List[Object]) data
@@ -234,21 +214,18 @@ class RedisStore (val redisConfig:RedisConfig)
     val values = {
       val buffer : ArrayBuffer[String] = ArrayBuffer[String]()
       val fpscanResult = pipeline.syncAndReturnAll.map{x =>
-//        logInfo(s"## ADDB getClass: ${x.getClass.toString()}")
+        logDebug(s"[ADDB] values getClass: ${x.getClass.toString()}")
 
         // If errors occur, casting exception is called
         try {
           x.asInstanceOf[ArrayList[String]]
         } catch {
           case e: java.lang.ClassCastException => {
-            logError(s"## ADDB Scan Error ${x.asInstanceOf[JedisClusterException]}")
+            logError(s"[ADDB] Scan Error: ${x.asInstanceOf[JedisClusterException]}")
             throw e
           }
         }
-//      logInfo(s"fpscanResult = $fpscanResult")
-//      logInfo(s"fpscanResult size = ${fpscanResult.size}")
-//    		  case e : Exception => throw e
-    }
+      }
       fpscanResult.foreach { 
         arrayList => arrayList.foreach ( content => buffer+=content )
        }
@@ -290,10 +267,9 @@ class RedisStore (val redisConfig:RedisConfig)
     }
    result
   }
-  
-//  def add(row: RedisRow): Unit = {
-//    throw new RuntimeException(s"Unsupported method on this mode")
-//  }
+  def add(row: RedisRow): Unit = {
+    throw new RuntimeException(s"Unsupported method on this mode")
+  }
   def get(key: String): Iterator[RedisRow] = {
     throw new RuntimeException(s"Unsupported method on this mode")
   }

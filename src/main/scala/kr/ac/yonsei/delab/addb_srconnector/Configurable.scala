@@ -14,7 +14,7 @@ trait Configurable
   
   def configure(conf:Configuration):Unit = {
     this.configuration = conf
-//    logInfo(s"$conf is configured")
+    logInfo(s"[ADDB] $conf is configured")
   }
 }
 
@@ -37,10 +37,6 @@ case class Configuration (
       parameters.getOrElse(key, defaultValue).toString
     }
   }
-  // return string array
-//  def gets(key:String):Array[String] = {
-//    parameters.get(key).toArray
-//  }
 }
 
 object ConfigurationConstants {  

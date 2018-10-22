@@ -10,12 +10,6 @@ import scala.collection.mutable.Stack
  * generate full datakey :=  "D:{TableInfo:PartitionInfo}"
  */
 object KeyUtil {
-  def makeSourceString(host:String, port: Int):String = {
-    var buf:StringBuilder = new StringBuilder
-    buf.append(host).append(":").append(port.toString())
-    buf.toString()
-  }
-  
   def returnHost(SourceString : String):String = {
     var buf:StringBuilder = new StringBuilder
     buf.append (SourceString.substring(0, SourceString.indexOf(":")))
@@ -71,15 +65,19 @@ object KeyUtil {
   /**
     * @param nodes list of RedisNode
     * @param keys list of keys
-    * return (node: (key1, key2, ...), node2: (key3, key4,...), ...)
+    * return (node(host+port): (datakey1, datakey2, ...), node2(host+port): (datakey3, datakey4,...), ...)
     */
-  
   def groupKeysByNode(nodes: Array[RedisNode], keys: Array[String]): // keys: DataKey
   Array[(String, Array[String])] = {
     def getNode(key: String): RedisNode = { // get RedisNode applying datakey
       val slot = JedisClusterCRC16.getSlot(key)
       /* Master only */
       nodes.filter(node => { node.startSlot <= slot && node.endSlot >= slot }).filter(_.idx == 0)(0)
+    }
+    def makeSourceString(host:String, port: Int):String = {
+      var buf:StringBuilder = new StringBuilder
+      buf.append(host).append(":").append(port.toString())
+      buf.toString()
     }
     keys.map(key => (getNode(key), key)).toArray.groupBy(_._1).
       map{x => (makeSourceString(x._1.redisConnection.host, x._1.redisConnection.port), x._2.map(_._2)) // (host+port, datakey:Array[String])
@@ -99,15 +97,7 @@ object KeyUtil {
         prunedColumns.foreach { column => 
           buf += columnNameWithIndex(column)
          }
-//    println("indice= "+buf.toArray.mkString(","))
-//    println(s"buf size= ${buf.size} , length= ${buf.length}, isEmpty=${buf.isEmpty}")
     if (buf.size == 0) {
-//      for {
-//        i <- 1 to columnNameWithIndex.size
-//      } {
-//        buf += i
-//      }
-//      buf.toArray.mkString(",")
       // get only first column
       "1"
     } else {

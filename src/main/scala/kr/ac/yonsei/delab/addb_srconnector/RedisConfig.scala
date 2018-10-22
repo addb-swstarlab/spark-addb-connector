@@ -9,19 +9,18 @@ import kr.ac.yonsei.delab.addb_srconnector.util.Logging
 class RedisConfig (val configuration:Configuration)
   extends Serializable 
   with Logging {
-//  val initialAddr = configuration.get("host").toString()
 
   @transient private var redisStore: RedisStore = null
 
   def createRedisStore(): RedisStore = {
     val store = new RedisStore( this )
     store.configure( configuration )
-//    logInfo( s"$store created" )
+    logDebug( s"[ADDB] $store created" )
     store
   }
   
   def getRedisStore(): RedisStore = {
-//    logInfo( s"get RedisStore object" )
+    logDebug( s"[ADDB] get RedisStore object" )
     this.synchronized {
     	if ( redisStore == null ) {
     		redisStore = createRedisStore()

@@ -32,18 +32,18 @@ class ADDBRDD (
   }
   
   override protected def getPartitions: Array[Partition] = {
-//    logInfo( s"[WONKI] : getPartitions called")
+    logDebug( s"[ADDB] getPartitions called")
     val redisStore = redisConfig.getRedisStore()
     val sourceinfos = redisStore.getTablePartitions(redisTable, filter) // get partition key
     var i = 0
     sourceinfos.map { mem =>
       val loc = mem._1
-//      logInfo( s"[WONKI] : getPartitions mem 1 : ${mem._1}")
+      logDebug( s"[ADDB] : getPartitions mem 1 : ${mem._1}")
       val sources : Array[String] = mem._2
       val size = mem._2.size
       
       var res = new ArrayBuffer[Partition]
-//      logInfo(s"size: ${mem._2.size}")
+      logDebug(s"[ADDB] Total size: ${mem._2.size}")
       var partitioningSize = {
         if (size>=10) size/10
         else 1
@@ -68,7 +68,7 @@ class ADDBRDD (
   override def compute(split: Partition, context: TaskContext) : Iterator[RedisRow] = {
 //    logInfo( s"[WONKI] : compute called")
     val partition = split.asInstanceOf[RedisPartition]
-//    logInfo( s"[WONKI] : partition : $partition")
+//    logInfo( s"[WONKI] : partition : ${partition.index}")
     val redisStore = redisConfig.getRedisStore()
     redisStore.scan(redisTable, partition.location, partition.partition, requiredColumns)
   }  
@@ -100,7 +100,6 @@ class RedisRDDAdaptor(
       redisRow =>
         val columns: Array[Any] = requiredColumns.map { column =>
           val value = redisRow.columns.getOrElse(column.name, null)
-//          logInfo(s"[WONKI] : compute : $value  : ${column.name}  ${column.dataType}")
           castToTarget(value, column.dataType)
         }
         val row = Row.fromSeq(columns.toSeq)

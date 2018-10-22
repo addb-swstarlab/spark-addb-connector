@@ -6,7 +6,6 @@ import kr.ac.yonsei.delab.addb_srconnector.{RedisTableList, RedisTable}
 
 object Filters { 
     def makeFilterString(f: Filter, stack: Stack[String], tableID: Int, table:RedisTable) : Unit = {
-      
       // Since "column name" should be converted into "column index"
       // get Table's Column name with index from RedisTableList object
       var columnNameWithIndex = RedisTableList.getTableColumnWithIndex(tableID, table)

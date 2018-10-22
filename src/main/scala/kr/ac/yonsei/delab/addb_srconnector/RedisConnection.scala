@@ -69,7 +69,7 @@ case class RedisNode(val redisConnection: RedisConnection,
                      val idx: Int,
                      val total: Int) {
   def connect(): Jedis = {
-//    logInfo(s"Redisd Node connect")
+    logDebug(s"[ADDB] Redisd Node connect")
     redisConnection.connect()
   }
 }
@@ -98,7 +98,8 @@ object RedisConnectionPool {
 //          	new JedisPool(poolConfig, redisConnection.host, redisConnection.port, 
 //        			redisConnection.timeout, redisConnection.auth, redisConnection.dbNum)
           	new JedisPool(poolConfig, redisConnection.host, redisConnection.port, 
-          			300000, redisConnection.auth, redisConnection.dbNum)
+          			30000000, redisConnection.auth, redisConnection.dbNum) // 30000sec
+//          			300000, redisConnection.auth, redisConnection.dbNum) // 300sec
 //         }
       }
     )

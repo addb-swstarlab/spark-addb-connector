@@ -56,12 +56,12 @@ case class ADDBRelation (parameters: Map[String,String],
     			     ) ) 
     			  }.toSeq:_* )
     			// ex) { col1 -> RedisColumn(col1, string) }
-//    			logInfo( s"Columns: $columns" )
+    			logDebug( s"[ADDB] Columns: $columns" )
 
       		// Partition can be multiple columns while OPTIONS must get 1 'partitions' key
       		val partitionColumnNames = configuration.get( PARTITION_COLUMN_KEY ).split(",").map(x => x.trim)
 
-      		logInfo( s"Index is not implemented yet.." )
+      		logInfo( s"[ADDB] Index is not implemented yet.." )
       		RedisTable(tableID, columns.values.toArray, partitionColumnNames);
     		}
     	// Build new RedisTable and insert it into RedisTableList
@@ -80,23 +80,22 @@ case class ADDBRelation (parameters: Map[String,String],
    */
   
   // TableScan
-
   override def buildScan: RDD[Row] = {
-    logInfo(s"buildScan: tableScan")
+    logDebug(s"buildScan: tableScan")
     buildScan(schema.fields.map( field => field.name ) )
   }
 
   // PrunedScan
   override def buildScan(requiredColumns: Array[String]): RDD[Row] = {
-    logInfo(s"buildScan: prunedScan")
+    logDebug(s"[ADDB] buildScan: prunedScan")
     buildScan( requiredColumns, Array())
   }
 
   // PrunedFilteredScan
   override def buildScan(requiredColumns: Array[String], filters: Array[Filter]): RDD[Row] = {
-//    logInfo(s"buildScan: prunedFilterScan")
+    logDebug(s"[ADDB] buildScan: prunedFilterScan")
 //    requiredColumns.foreach(x => logInfo(s"requiredColumns : $x"))
-//    logInfo(s"filter size : ${filters.size}")
+    logDebug(s"[ADDB] filter size : ${filters.size}")
 //    filters.foreach(x => logInfo(s"filters : $x"))
 
     val redisConfig = getRedisConfig( configuration )
@@ -107,11 +106,11 @@ case class ADDBRelation (parameters: Map[String,String],
    
   // InsertableRelation
   override def insert(data: DataFrame, overwrite: Boolean): Unit = {
-    logInfo(s"##[JH] insert function")
-//    logInfo(s"[dataFrame]"+data.rdd.partitions.length) // return 8
+    logDebug(s"[ADDB] insert function")
+    logDebug(s"[ADDB] the number of partition: "+data.rdd.partitions.length) // return 8
     // check OVERWRITE command
     if (overwrite) {
-      logInfo(s"Do not implement overwrite command. Thus, operate only append")
+			logWarning(s"[ADDB] Do not implement overwrite command. Thus, operate only append")
     }
 
     // insert RedisRow(RedisTable+Column) into RedisStore
@@ -128,10 +127,9 @@ case class ADDBRelation (parameters: Map[String,String],
     try {
     	rowRDD.foreachPartition { 
     		partition => // partition:Iterator[Row]
-    		
-    		logInfo(s"##[JH] start partition loop")
-    		
-    		// make each pipeline
+    		logDebug(s"[ADDB] start partition loop")
+
+    		// 1) make each pipeline
     		val retainingJedisPool = new RetainingJedisPool()
     		val pipelinePool = new PipelinePool()
     		redisStore.redisCluster.nodes.foreach{
@@ -139,15 +137,13 @@ case class ADDBRelation (parameters: Map[String,String],
     			  val jedis = retainingJedisPool.add(node)
       			pipelinePool.add(node.redisConnection.host+":"+node.redisConnection.port.toString, jedis)
     		}
-
     		// Since datakey and partitionInfo are duplicated,
     		// make once only
 //    		var datakey = new StringBuilder
 //    		var partitionInfo = new StringBuilder
     		
-    		// fpwrite all rows
-    		partition.foreach{ 
-    			
+    		// 2) fpwrite all rows
+    		partition.foreach {
     			row => // row:Iterator[Row]
     			
     			  val columns = columnsWithIndex.map{ 
@@ -171,8 +167,8 @@ case class ADDBRelation (parameters: Map[String,String],
 //    			redisStore.add(RedisRow(redisTable, columns), pipelinePool, datakey.toString, partitionInfo.toString)
     			  redisStore.add(RedisRow(redisTable, columns), pipelinePool)
     		}
-    		// synchronize all pipeline
-    		// close all jedis connection
+    		// 3) synchronize all pipeline
+    		// 4) close all jedis connection
     		redisStore.redisCluster.nodes.foreach{
     			node =>
       			val jedis = retainingJedisPool.get(node)
@@ -183,9 +179,6 @@ case class ADDBRelation (parameters: Map[String,String],
     	}
     } catch {
       case e : Exception => throw e
-//      case _ : Throwable => logError(s"## ADDB Insert Error!")
-    } finally {
-//          
-    }    
+    }
    }
 }
