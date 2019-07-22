@@ -202,20 +202,20 @@ class RedisStore (val redisConfig:RedisConfig)
     val conn = redisCluster.nodes(nodeIndex).redisConnection.connect
     val pipeline = conn.pipelined()
 
-    datakeys.foreach {
-      datakey =>
-//      logInfo( s"[WONKI] : key in scan = $datakey | port = $port")
-      val commandArgsObject = new CommandArgsObject(datakey,
-                                                      KeyUtil.makeRequiredColumnIndice(table.id, table, prunedColumns))
+    val values : ArrayBuffer[String] = ArrayBuffer[String]()
+    
+    datakeys.grouped(100).foreach {
+      datakeyGroup => datakeyGroup.foreach {
+      dataKey =>
+      val commandArgsObject = new CommandArgsObject(dataKey,
+          KeyUtil.retRequiredColumnIndice(table.id, table, prunedColumns))
     	 pipeline.fpscan(commandArgsObject)
-    }
-    // For getting String data, transform original(List[Object]) data
-    // List[Object] -> List[ArrayList[String]] -> Buffer[ArrayList[String]] -> Append each String
-    val values = {
-      val buffer : ArrayBuffer[String] = ArrayBuffer[String]()
-      val fpscanResult = pipeline.syncAndReturnAll.map{x =>
+ 
+    	/* For getting String data, transform original(List[Object]) data
+     List[Object] -> List[ArrayList[String]] -> Buffer[ArrayList[String]] -> Append each String */
+    	 
+      val fpscanResult = pipeline.syncAndReturnAll.map{ x =>
         logDebug(s"[ADDB] values getClass: ${x.getClass.toString()}")
-
         // If errors occur, casting exception is called
         try {
           x.asInstanceOf[ArrayList[String]]
@@ -223,14 +223,14 @@ class RedisStore (val redisConfig:RedisConfig)
           case e: java.lang.ClassCastException => {
             logError(s"[ADDB] Scan Error: ${x.asInstanceOf[JedisClusterException]}")
             throw e
+            }
           }
         }
-      }
       fpscanResult.foreach { 
-        arrayList => arrayList.foreach ( content => buffer+=content )
+        arrayList => arrayList.foreach ( content => values+=content )
        }
-      buffer
-    }
+      }
+    } 
 //    values.foreach { x => logInfo(s"values: $x") }
     
     // For coping with count(*) case. (When prunedColumns is empty)

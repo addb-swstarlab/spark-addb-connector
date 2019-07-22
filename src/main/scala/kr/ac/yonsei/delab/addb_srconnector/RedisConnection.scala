@@ -67,7 +67,9 @@ case class RedisNode(val redisConnection: RedisConnection,
                      val startSlot: Int,
                      val endSlot: Int,
                      val idx: Int,
-                     val total: Int) {
+                     val total: Int)
+                     extends Serializable 
+                     with Logging {
   def connect(): Jedis = {
     logDebug(s"[ADDB] Redisd Node connect")
     redisConnection.connect()

@@ -104,5 +104,17 @@ object KeyUtil {
     	buf.toArray.mkString(",")      
     }
   }
-  
+  def retRequiredColumnIndice (tableID:Int, table:RedisTable, prunedColumns:Array[String]):String = {
+    val columnNameWithIndex = table.columnNameWithID
+    val buf : ArrayBuffer[Int] = ArrayBuffer[Int]()
+        prunedColumns.foreach { column => 
+          buf += columnNameWithIndex(column)
+         }
+    if (buf.size == 0) {
+      // get only first column
+      "1"
+    } else {
+    	buf.toArray.mkString(",")      
+    }
+  }    
 }
