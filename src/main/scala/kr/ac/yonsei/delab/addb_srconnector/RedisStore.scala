@@ -203,8 +203,13 @@ class RedisStore (val redisConfig:RedisConfig)
     val pipeline = conn.pipelined()
 
     val values : ArrayBuffer[String] = ArrayBuffer[String]()
+
+		val group_size = {
+			if (datakeys.size >= 100) 100
+			else 1
+		}
     
-    datakeys.grouped(100).foreach {
+    datakeys.grouped(group_size).foreach {
       datakeyGroup => datakeyGroup.foreach {
       dataKey =>
       val commandArgsObject = new CommandArgsObject(dataKey,
