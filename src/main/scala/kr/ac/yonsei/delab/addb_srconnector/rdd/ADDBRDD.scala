@@ -4,7 +4,7 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.TaskContext
 import org.apache.spark.SparkContext
 import org.apache.spark.Partition
-import scala.math.BigDecimal
+import java.math.BigDecimal
 import scala.reflect.ClassTag
 import scala.collection.JavaConversions._
 import scala.collection.mutable.ArrayBuffer
@@ -14,7 +14,8 @@ import kr.ac.yonsei.delab.addb_srconnector.util
 import org.apache.spark.sql.{DataFrame, SQLContext, Row}
 import org.apache.spark.sql.sources._
 import org.apache.spark.sql.types._
-import java.text.NumberFormat
+import java.text.{SimpleDateFormat,NumberFormat}
+import java.util.Locale
 import java.sql.Date
 
 class ADDBRDD (
@@ -84,12 +85,19 @@ class RedisRDDAdaptor(
 
   def castToTarget(value: String, dataType: DataType) = {
     dataType match {
+      case _: ByteType => value.toByte
+      case _: ShortType => value.toShort
       case _: IntegerType => value.toInt
-      case _: DoubleType => value.toDouble
-      case _: StringType => value.toString
-      case _: DecimalType => BigDecimal(value.toDouble)
+      case _: LongType => value.toLong
+      case _: FloatType => Try(value.toFloat)
+      .getOrElse(NumberFormat.getInstance(Locale.getDefault).parse(value).floatValue())
+      case _: DoubleType => Try(value.toDouble)
+      .getOrElse(NumberFormat.getInstance(Locale.getDefault).parse(value).doubleValue())
+      case _: BooleanType => value.toBoolean
+      case _: DecimalType => new BigDecimal(value.replaceAll(",", ""))
+      case _: StringType => value
       case _: DateType => Date.valueOf(value)
-      case _ => value.toString
+      case _ => throw new RuntimeException(s"Unsupported type")
     }
   }
 
