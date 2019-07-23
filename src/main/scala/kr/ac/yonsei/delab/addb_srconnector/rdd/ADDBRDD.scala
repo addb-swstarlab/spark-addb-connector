@@ -17,6 +17,7 @@ import org.apache.spark.sql.types._
 import java.text.{SimpleDateFormat,NumberFormat}
 import java.util.Locale
 import java.sql.Date
+import scala.util.Try
 
 class ADDBRDD (
     @transient val sc: SparkContext,
