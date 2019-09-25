@@ -11,6 +11,10 @@ import org.apache.spark.sql.types._
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import scala.collection.mutable.{Stack, ArrayBuffer, ListBuffer}
+import scala.concurrent.Future
+import scala.concurrent.Await
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration.Duration
 
 import redis.clients.addb_jedis.Protocol
 import redis.clients.addb_jedis.util.CommandArgsObject
@@ -199,27 +203,35 @@ class RedisStore (val redisConfig:RedisConfig)
     val host = KeyUtil.returnHost(location)
     val port = KeyUtil.returnPort(location)
     val nodeIndex = redisCluster.checkNodes(host, port)
-    val conn = redisCluster.nodes(nodeIndex).redisConnection.connect
-    val pipeline = conn.pipelined()
+//    val conn = redisCluster.nodes(nodeIndex).redisConnection.connect
+//    val pipeline = conn.pipelined()
 
-    val values : ArrayBuffer[String] = ArrayBuffer[String]()
+    //val values : ArrayBuffer[String] = ArrayBuffer[String]()
 
+    val futures = new ArrayBuffer[Future[ArrayBuffer[String]]]
+      
 		val group_size = {
-			if (datakeys.size >= 100) 100
+			if (datakeys.size >= 10) 10
 			else 1
 		}
     
     datakeys.grouped(group_size).foreach {
+      val conn = redisCluster.nodes(nodeIndex).redisConnection.connect
+      val pipeline = conn.pipelined()
+      
       datakeyGroup => datakeyGroup.foreach {
       dataKey =>
       val commandArgsObject = new CommandArgsObject(dataKey,
           KeyUtil.retRequiredColumnIndice(table.id, table, prunedColumns))
     	 pipeline.fpscan(commandArgsObject)
+      }
  
     	/* For getting String data, transform original(List[Object]) data
      List[Object] -> List[ArrayList[String]] -> Buffer[ArrayList[String]] -> Append each String */
-    	 
-      val fpscanResult = pipeline.syncAndReturnAll.map{ x =>
+    	 //val fpscanResult = pipeline.syncAndReturnAll.map{ x =>
+     futures += Future {
+        val valueList : ArrayBuffer[String] = ArrayBuffer[String]()
+        val list = pipeline.syncAndReturnAll.map{ x =>
         logDebug(s"[ADDB] values getClass: ${x.getClass.toString()}")
         // If errors occur, casting exception is called
         try {
@@ -229,14 +241,26 @@ class RedisStore (val redisConfig:RedisConfig)
             logError(s"[ADDB] Scan Error: ${x.asInstanceOf[JedisClusterException]}")
             throw e
             }
+        } finally {
+          conn.close()          
           }
         }
-      fpscanResult.foreach { 
-        arrayList => arrayList.foreach ( content => values+=content )
+        list.foreach(l => l.foreach(str => valueList += str))
+        valueList
        }
-      }
+   
     } 
+    
+    val values = ArrayBuffer.empty[String]
+    for(f <- futures) {
+      val temp_arr = Await.result(f, Duration.Inf)
+      temp_arr.foreach {
+        str => values += str
+      }
+    }
+    
 //    values.foreach { x => logInfo(s"values: $x") }
+    
     
     // For coping with count(*) case. (When prunedColumns is empty)
     val numRow = {
@@ -251,7 +275,7 @@ class RedisStore (val redisConfig:RedisConfig)
 //    columnList.foreach( x => logInfo(s"columnList $x"))
     val res = columnList.zip(values)
 
-    conn.close
+//    conn.close
 
     val result = {
       if (prunedColumns.length != 0) {
