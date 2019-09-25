@@ -125,6 +125,7 @@ class RedisStore (val redisConfig:RedisConfig)
       retbuf.append("$")
      }
     logDebug(s"new String for Filter = " + retbuf.toString() +", "+ retbuf.toString.isEmpty)
+		logInfo(s"new String for Filter = " + retbuf.toString() +", "+ retbuf.toString.isEmpty)
 
     val ret_scala : ArrayBuffer[String] = ArrayBuffer[String]()    
     redisCluster.nodes.foreach{
@@ -149,7 +150,7 @@ class RedisStore (val redisConfig:RedisConfig)
           /*,
           datakey: String,
           partitionInfo:String */): Unit = {
-    logInfo("[ADDB] add(INSERTION) function")
+    //logInfo("[ADDB] add(INSERTION) function")
     var partitionInfo = new StringBuilder
 //    rowForTableInfo.foreach { x => logInfo(s"rowForTableInfo: ${x.columns}") }
     
@@ -192,50 +193,80 @@ class RedisStore (val redisConfig:RedisConfig)
 
     logDebug("[ADDB] scan function")
     val columnIndex = prunedColumns.map { 
-      columnName =>
-    	   "" + (table.columns.map(_.name).indexOf(columnName) + 1)
-    }
+      columnName => "" + (table.columns.map(_.name).indexOf(columnName) + 1)
+				}
 
     val host = KeyUtil.returnHost(location)
     val port = KeyUtil.returnPort(location)
     val nodeIndex = redisCluster.checkNodes(host, port)
     val conn = redisCluster.nodes(nodeIndex).redisConnection.connect
-    val pipeline = conn.pipelined()
 
     val values : ArrayBuffer[String] = ArrayBuffer[String]()
 
-		val group_size = {
-			if (datakeys.size >= 100) 100
-			else 1
-		}
+  		val group_size = {
+			   if (datakeys.size >= 10) 10
+			   else 1
+				}
     
-    datakeys.grouped(group_size).foreach {
-      datakeyGroup => datakeyGroup.foreach {
-      dataKey =>
-      val commandArgsObject = new CommandArgsObject(dataKey,
+    val fpscanResults = datakeys.grouped(group_size).map { datakeyGroup =>
+      val pipeline = conn.pipelined()
+      datakeyGroup.foreach { dataKey =>
+        val commandArgsObject = new CommandArgsObject(dataKey,
           KeyUtil.retRequiredColumnIndice(table.id, table, prunedColumns))
-    	 pipeline.fpscan(commandArgsObject)
- 
-    	/* For getting String data, transform original(List[Object]) data
-     List[Object] -> List[ArrayList[String]] -> Buffer[ArrayList[String]] -> Append each String */
-    	 
-      val fpscanResult = pipeline.syncAndReturnAll.map{ x =>
+        pipeline.fpscan(commandArgsObject)
+      }
+
+      // TODO(totoro): Implements syncAndReturnAll to Future API.
+      pipeline.syncAndReturnAll.map { x =>
         logDebug(s"[ADDB] values getClass: ${x.getClass.toString()}")
         // If errors occur, casting exception is called
         try {
+          /* For getting String data, transform original(List[Object]) data
+          List[Object] -> List[ArrayList[String]] -> Buffer[ArrayList[String]] -> Append each String */
           x.asInstanceOf[ArrayList[String]]
         } catch {
           case e: java.lang.ClassCastException => {
             logError(s"[ADDB] Scan Error: ${x.asInstanceOf[JedisClusterException]}")
             throw e
-            }
           }
         }
-      fpscanResult.foreach { 
-        arrayList => arrayList.foreach ( content => values+=content )
-       }
       }
-    } 
+    }
+
+    fpscanResults.foreach { fpscanResult =>
+      fpscanResult.foreach { arrayList =>
+        arrayList.foreach(content => values += content)
+      }
+    }
+
+//    datakeys.grouped(group_size).foreach { datakeyGroup =>
+//      val pipeline = conn.pipelined()
+//      datakeyGroup.foreach { dataKey =>
+//        val commandArgsObject = new CommandArgsObject(dataKey,
+//            KeyUtil.retRequiredColumnIndice(table.id, table, prunedColumns))
+//      	 pipeline.fpscan(commandArgsObject)
+//   
+//      	 /* For getting String data, transform original(List[Object]) data
+//        List[Object] -> List[ArrayList[String]] -> Buffer[ArrayList[String]] -> Append each String */
+//      	 
+//        val fpscanResult = pipeline.syncAndReturnAll.map{ x =>
+//          logDebug(s"[ADDB] values getClass: ${x.getClass.toString()}")
+//          // If errors occur, casting exception is called
+//          try {
+//            x.asInstanceOf[ArrayList[String]]
+//          } catch {
+//            case e: java.lang.ClassCastException => {
+//              logError(s"[ADDB] Scan Error: ${x.asInstanceOf[JedisClusterException]}")
+//              throw e
+//            }
+//          }
+//        }
+//        fpscanResult.foreach { 
+//          arrayList => arrayList.foreach ( content => values+=content )
+//        }
+//      }
+//    }
+
 //    values.foreach { x => logInfo(s"values: $x") }
     
     // For coping with count(*) case. (When prunedColumns is empty)

@@ -47,7 +47,7 @@ class ADDBRDD (
       var res = new ArrayBuffer[Partition]
       logDebug(s"[ADDB] Total size: ${mem._2.size}")
       var partitioningSize = {
-        if (size>=10) size/10
+        if (size>=36) size/36
         else 1
       }
      mem._2.grouped(partitioningSize).foreach { 
