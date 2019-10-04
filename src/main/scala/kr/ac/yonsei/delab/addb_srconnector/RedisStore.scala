@@ -112,7 +112,7 @@ class RedisStore (val redisConfig:RedisConfig)
     logDebug( s"[ADDB] : getTablePartitions called")
     val metaKey =KeyUtil.generateKeyForMeta(table.id)
     logDebug( s"[ADDB] : metaKey: $metaKey" )
-
+    val sf = System.currentTimeMillis
     // Make filter
     var retbuf = new StringBuilder
     filter.foreach { 
@@ -124,9 +124,12 @@ class RedisStore (val redisConfig:RedisConfig)
          }
       retbuf.append("$")
      }
+    val ef = System.currentTimeMillis
+    logInfo(s"[ADDB] make filterString ${(ef-sf)/1000.0f}")
     logDebug(s"new String for Filter = " + retbuf.toString() +", "+ retbuf.toString.isEmpty)
 		logInfo(s"new String for Filter = " + retbuf.toString() +", "+ retbuf.toString.isEmpty)
 
+    val sg = System.currentTimeMillis
     val ret_scala : ArrayBuffer[String] = ArrayBuffer[String]()    
     redisCluster.nodes.foreach{
         x =>
@@ -138,6 +141,8 @@ class RedisStore (val redisConfig:RedisConfig)
         
     // Spark partitioning := partition keys with corresponding port
     val partitioning = KeyUtil.groupKeysByNode(redisCluster.nodes, KeyUtil.generateDataKey(table.id, ret_scala.toArray))
+    val eg = System.currentTimeMillis
+    logInfo(s"[ADDB] metakeys ${(eg-sg)/1000.0f}")
     partitioning
   }
 
@@ -185,39 +190,52 @@ class RedisStore (val redisConfig:RedisConfig)
     pipeline.fpwrite(commandArgsObject)
   }
   
+  def _calculateDurationSec(start: Double, end: Double): Double = {
+    return (end - start) / 1000.0f;
+  }
+  
   def scan(
     table: RedisTable,
     location: String,
     datakeys: Array[String], // datakeys including partition key
     prunedColumns: Array[String]): Iterator[RedisRow] = {
 
+    val _time_prepare_s = System.currentTimeMillis
     logDebug("[ADDB] scan function")
     val columnIndex = prunedColumns.map { 
       columnName => "" + (table.columns.map(_.name).indexOf(columnName) + 1)
 				}
-
     val host = KeyUtil.returnHost(location)
     val port = KeyUtil.returnPort(location)
     val nodeIndex = redisCluster.checkNodes(host, port)
-    val conn = redisCluster.nodes(nodeIndex).redisConnection.connect
-
-    val values : ArrayBuffer[String] = ArrayBuffer[String]()
+    val _time_prepare_e = System.currentTimeMillis
+    logInfo(s"[ADDB] prepare time ${_calculateDurationSec(_time_prepare_e, _time_prepare_s)}")
 
   		val group_size = {
 			   if (datakeys.size >= 10) 10
 			   else 1
 				}
-    
-    val fpscanResults = datakeys.grouped(group_size).map { datakeyGroup =>
+
+    val _time_flatmapscan_s = System.currentTimeMillis 
+    val values = datakeys.grouped(group_size).flatMap { datakeyGroup =>
+      val __time_connection_s = System.currentTimeMillis
+      val conn = redisCluster.nodes(nodeIndex).redisConnection.connect
       val pipeline = conn.pipelined()
+      val __time_connection_e = System.currentTimeMillis
+      logInfo(s"[ADDB] connection time ${_calculateDurationSec(__time_connection_s, __time_connection_e)}")
+      
+      val __time_execution_s = System.currentTimeMillis
       datakeyGroup.foreach { dataKey =>
         val commandArgsObject = new CommandArgsObject(dataKey,
           KeyUtil.retRequiredColumnIndice(table.id, table, prunedColumns))
         pipeline.fpscan(commandArgsObject)
       }
-
+      val __time_execution_e = System.currentTimeMillis
+      logInfo(s"[ADDB] scan execution ${_calculateDurationSec(__time_execution_s, __time_execution_e)}")
+   
+      val __time_pipsync_s = System.currentTimeMillis
       // TODO(totoro): Implements syncAndReturnAll to Future API.
-      pipeline.syncAndReturnAll.map { x =>
+      val results = pipeline.syncAndReturnAll.flatMap { x =>
         logDebug(s"[ADDB] values getClass: ${x.getClass.toString()}")
         // If errors occur, casting exception is called
         try {
@@ -231,78 +249,37 @@ class RedisStore (val redisConfig:RedisConfig)
           }
         }
       }
+      val __time_pipsync_e = System.currentTimeMillis
+      logInfo(s"[ADDB] pip sync ${_calculateDurationSec(__time_pipsync_s, __time_pipsync_e)}")
+      conn.close()
+      results
     }
+    .toArray
 
-    fpscanResults.foreach { fpscanResult =>
-      fpscanResult.foreach { arrayList =>
-        arrayList.foreach(content => values += content)
-      }
-    }
+    val _time_flatmapscan_e = System.currentTimeMillis
+    logInfo(s"[ADDb] flatmap scan ${_calculateDurationSec(_time_flatmapscan_s, _time_flatmapscan_e)}")
 
-//    datakeys.grouped(group_size).foreach { datakeyGroup =>
-//      val pipeline = conn.pipelined()
-//      datakeyGroup.foreach { dataKey =>
-//        val commandArgsObject = new CommandArgsObject(dataKey,
-//            KeyUtil.retRequiredColumnIndice(table.id, table, prunedColumns))
-//      	 pipeline.fpscan(commandArgsObject)
-//   
-//      	 /* For getting String data, transform original(List[Object]) data
-//        List[Object] -> List[ArrayList[String]] -> Buffer[ArrayList[String]] -> Append each String */
-//      	 
-//        val fpscanResult = pipeline.syncAndReturnAll.map{ x =>
-//          logDebug(s"[ADDB] values getClass: ${x.getClass.toString()}")
-//          // If errors occur, casting exception is called
-//          try {
-//            x.asInstanceOf[ArrayList[String]]
-//          } catch {
-//            case e: java.lang.ClassCastException => {
-//              logError(s"[ADDB] Scan Error: ${x.asInstanceOf[JedisClusterException]}")
-//              throw e
-//            }
-//          }
-//        }
-//        fpscanResult.foreach { 
-//          arrayList => arrayList.foreach ( content => values+=content )
-//        }
-//      }
-//    }
-
-//    values.foreach { x => logInfo(s"values: $x") }
-    
-    // For coping with count(*) case. (When prunedColumns is empty)
-    val numRow = {
-      if (prunedColumns.length != 0) values.length / prunedColumns.length
-      else values.length // Avoid divideByZero
-    }
-    
-    val columnList = {
-      if (prunedColumns.length != 0) Stream.continually(prunedColumns).take(numRow).flatten.toArray
-      else Stream.continually(table.columns(0).name).take(numRow).toArray // set first column
-    }
-//    columnList.foreach( x => logInfo(s"columnList $x"))
-    val res = columnList.zip(values)
-
-    conn.close
-
+    val _time_remainjob_s = System.currentTimeMillis
     val result = {
       if (prunedColumns.length != 0) {
-    	  res.grouped(prunedColumns.length).map { 
-    		  x =>
-//        x.foreach(x => s"### result : ${x._1} , ${x._2}")
-    		  val columns: Map[String, String] = x.toMap
-    		  new RedisRow(table, columns)
-    	  }
-      } 
+        values.grouped(prunedColumns.length).map { x =>
+          val columns: Map[String, String] = prunedColumns.zip(x).toMap
+          new RedisRow(table, columns)
+        }
+      }
       else {
-        res.map{
-          x =>
-            val columns: Map[String, String] = Map(x._1 -> x._2)
-            new RedisRow(table, columns)
+        values.map { x => 
+          val columns: Map[String, String] = Map(x->x)
+          new RedisRow(table, columns)
         }.toIterator
       }
     }
-   result
+    val _time_remainjob_e = System.currentTimeMillis
+    logInfo(s"[ADDB] remain job ${_calculateDurationSec(_time_remainjob_s, _time_remainjob_e)}")
+
+    result
   }
+  
   def add(row: RedisRow): Unit = {
     throw new RuntimeException(s"Unsupported method on this mode")
   }

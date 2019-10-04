@@ -84,7 +84,7 @@ object RedisConnectionPool {
       {
         val poolConfig: JedisPoolConfig = new JedisPoolConfig();
         // Configuration setting
-        poolConfig.setMaxTotal(1000)
+        poolConfig.setMaxTotal(10000)
         poolConfig.setMaxWaitMillis(300000)
 //        poolConfig.setMaxIdle(32)
 //        poolConfig.setTestOnBorrow(false)
