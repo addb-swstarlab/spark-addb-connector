@@ -21,7 +21,10 @@ object Filters {
         makeFilterString(f.asInstanceOf[And].left, stack, tableID, table)
         makeFilterString(f.asInstanceOf[And].right, stack, tableID, table)
       }
-      
+      case Not(_) =>  {
+        stack.push("Not:")
+        makeFilterString(f.asInstanceOf[Not].child, stack, tableID, table)      
+      }
       case EqualTo(_,_) => {
         stack.push("EqualTo:")
         stack.push(columnNameWithIndex.get(f.asInstanceOf[EqualTo].attribute).get + "*")
